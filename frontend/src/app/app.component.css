@@ -1,0 +1,83 @@
+/* Style for the navbar */
+.navbar {
+  background-color: #1c1f26; /* Dark background color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 10px 20px; /* Padding around the navbar */
+}
+
+.navbar-brand {
+  color: #f8f9fa; /* Light color for brand name */
+  font-weight: bold;
+  font-size: 1.5rem; /* Slightly larger font size for brand */
+}
+
+.navbar-brand:hover {
+  color: #00b4d8; /* Bright accent color on hover */
+}
+
+.nav-link {
+  color: #f8f9fa; /* Light color for nav links */
+  margin-right: 20px; /* Increased space between nav links */
+  font-size: 1.1rem; /* Slightly larger font size for nav links */
+  transition: color 0.3s; /* Smooth transition for color change */
+}
+
+.nav-link:hover {
+  color: #00b4d8; /* Bright accent color on hover */
+}
+
+.navbar-toggler {
+  border-color: #00b4d8; /* Accent color for the toggler button border */
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%2800, 180, 216, 1%29' stroke-width='2' linecap='round' linejoin='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.collapse.show {
+  background-color: #1c1f26; /* Maintain dark background for dropdown */
+}
+
+.nav-link.active {
+  color: #00b4d8 !important; /* Bright accent color for active link */
+  font-weight: bold;
+  border-bottom: 2px solid #00b4d8; /* Underline active link */
+}
+
+.dropdown-menu {
+  background-color: #1c1f26; /* Match the navbar background */
+  border: none; /* Remove border */
+  box-shadow: none; /* Remove default shadow */
+  padding: 0; /* Remove default padding */
+}
+
+.dropdown-item {
+  color: #f8f9fa; /* Light color for dropdown items */
+  padding: 10px 20px; /* Match padding with nav-link */
+  font-size: 1.1rem; /* Match font size with nav-link */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effects */
+}
+
+.dropdown-item:hover {
+  background-color: #00b4d8; /* Accent color on hover */
+  color: #fff; /* White text on hover */
+}
+
+.dropdown-item.active {
+  color: #00b4d8; /* Bright accent color for active dropdown item */
+  background-color: #1c1f26; /* Match background color for active state */
+}
+
+option {
+  background-color: #1c1f26; /* Match background color with the dropdown menu */
+  color: #f8f9fa; /* Light color for text */
+  padding: 8px 12px; /* Padding inside the option */
+  font-size: 1.1rem; /* Match font size with nav-link */
+  cursor: pointer;
+}
+
+/* Hover effect for options */
+option:hover {
+  background-color: #00b4d8; /* Accent color on hover */
+  color: #fff; /* White text on hover */
+}

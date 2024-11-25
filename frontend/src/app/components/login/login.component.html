@@ -1,0 +1,40 @@
+
+<div class="login-container">
+  <div class="login-box">
+    <div class="login-image">
+      <img [src]="newsLoginImage" alt="login Image">
+    </div>
+    <div class="login-form">
+      <h2>Login to continue polling...</h2>
+      <form (ngSubmit)="login(form)" #form="ngForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" [(ngModel)]="username" name="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" [(ngModel)]="password" name="password" required />
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <!-- Display the error message returned from the server -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <div class="sign-in-link">
+        <p>Forgot your password? <a (click)="forgotPassword()">Reset your password</a></p>
+      </div>
+      <div class="sign-in-link">
+        <p>Don't have an account? <a (click)="navigateToRegister()">Register</a></p>
+      </div>
+
+      <div [ngClass]="alertClass" role="alert" *ngIf="succcess || errorMessage">
+        <div *ngIf="succcess">Login successful! Redirecting...</div>
+        <div *ngIf="errorMessage">{{ errorMessage }}</div>
+      </div>
+    </div>
+  </div>
+</div>

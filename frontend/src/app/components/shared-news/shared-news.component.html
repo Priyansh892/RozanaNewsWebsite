@@ -1,0 +1,34 @@
+<!-- Save and Share Buttons -->
+<div class="actions">
+  <!-- <button class="btn btn-outline-secondary" (click)="saveNews()">
+    <i class="fas fa-save"></i> Save
+  </button> -->
+  <button class="btn btn-outline-secondary ml-2" (click)="shareNews()">
+    <i class="fas fa-share"></i> Share
+  </button>
+</div>
+
+<!-- Share Modal -->
+<div class="modal" *ngIf="showShareModal">
+  <div class="modal-content">
+    <h2>Share this news</h2>
+    <div class="social-buttons">
+      <button *ngIf="socialLinks.facebook" (click)="openSocialLink(socialLinks.facebook)">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </button>
+      <button *ngIf="socialLinks.twitter" (click)="openSocialLink(socialLinks.twitter)">
+        <i class="fab fa-twitter"></i> Twitter
+      </button>
+      <button *ngIf="socialLinks.linkedin" (click)="openSocialLink(socialLinks.linkedin)">
+        <i class="fab fa-linkedin-in"></i> LinkedIn
+      </button>
+      <button *ngIf="socialLinks.email" (click)="openSocialLink(socialLinks.email)">
+        <i class="fas fa-envelope"></i> Email
+      </button>
+      <button *ngIf="socialLinks.whatsapp" (click)="openSocialLink(socialLinks.whatsapp)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </button>
+    </div>
+    <button class="btn btn-danger" (click)="closeModal()">Close</button>
+  </div>
+</div>
