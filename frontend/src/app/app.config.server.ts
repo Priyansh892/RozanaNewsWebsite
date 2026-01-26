@@ -1,11 +1,15 @@
-import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
-import { provideServerRendering } from '@angular/platform-server';
-import { appConfig } from './app.config';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideClientHydration } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { routes } from './app.routes';
 
-const serverConfig: ApplicationConfig = {
+export const appConfig: ApplicationConfig = {
   providers: [
-    provideServerRendering()
-  ]
+    provideRouter(routes),
+    provideHttpClient(withFetch()),
+    provideClientHydration(),
+    importProvidersFrom(CommonModule),
+  ],
 };
-
-export const config = mergeApplicationConfig(appConfig, serverConfig);
