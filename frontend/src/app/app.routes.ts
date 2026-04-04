@@ -8,13 +8,35 @@ import { CountryNewsComponent } from './components/country-news/country-news.com
 import { TopHeadlinesComponent } from './components/top-headlines/top-headlines.component';
 //import { SavedNewsComponent } from './components/saved-news/saved-news.component';
 
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from './components/services/auth.service';
+
 export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    canActivate: [() => {
+      const auth = inject(AuthService);
+      const router = inject(Router);
+
+      if (auth.isLoggedIn()) {
+        router.navigate(['/all-news']);
+      } else {
+        router.navigate(['/login']);
+      }
+      return false;
+    }]
+  },
+
   { path: 'all-news', component: AllNewsComponent },
   { path: 'country/:iso', component: CountryNewsComponent },
   { path: 'top-headlines/:category', component: TopHeadlinesComponent },
   // { path: 'saved-news',component:SavedNewsComponent},
+
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: '**', redirectTo: '/' }, // Redirect unknown routes to home
+
+  { path: '**', redirectTo: 'login' }
 ];

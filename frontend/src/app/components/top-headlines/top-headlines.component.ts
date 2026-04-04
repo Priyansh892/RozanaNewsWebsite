@@ -17,11 +17,11 @@ export class TopHeadlinesComponent {
   data: any[] = [];
   page = 1;
   totalResults = 0;
+  totalPages = 1;
   isLoading = false;
   error: string | null = null;
   max = 12;
   category: string | null = null;
-  totalPages=1;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,6 +31,7 @@ export class TopHeadlinesComponent {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.category = params.get('category');
+      this.page = 1; // reset on category change
       this.fetchData();
     });
   }
@@ -42,7 +43,14 @@ export class TopHeadlinesComponent {
     this.newsService.getTopHeadlines(this.category || '', this.page, this.max)
       .pipe(
         catchError(error => {
-          this.error = 'Failed to fetch news. Please try again later.';
+          if (error.status === 0) {
+            this.error = 'Network error. Check connection.';
+          } else if (error.status >= 500) {
+            this.error = 'Server error. Try later.';
+          } else {
+            this.error = 'Failed to fetch news.';
+          }
+
           return of({ success: false, data: { articles: [], totalResults: 0 } });
         }),
         finalize(() => {
@@ -51,12 +59,9 @@ export class TopHeadlinesComponent {
       )
       .subscribe(response => {
         if (response.success) {
-         // this.totalResults = response.data.totalArticles;
           this.totalResults = response.data.totalResults;
           this.data = response.data.articles;
-          this.calculateTotalPages()
-        } else {
-          this.error = response.message || 'An error occurred';
+          this.calculateTotalPages();
         }
       });
   }
@@ -69,13 +74,22 @@ export class TopHeadlinesComponent {
   }
 
   handleNext(): void {
-    if (this.page < Math.ceil(this.totalResults / this.max + 1)) {
+    if (this.page < this.totalPages) {
       this.page++;
       this.fetchData();
     }
   }
+
   calculateTotalPages(): void {
-    this.totalPages = Math.ceil(this.totalResults / this.max + 1);
+    this.totalPages = Math.ceil(this.totalResults / this.max);
   }
+
+  trackByUrl(index: number, item: any): string {
+    return item.url;
+  }
+
+  handleImageError(event: any): void {
+  event.target.src = 'assets/googleNews.png';
+}
 }
 

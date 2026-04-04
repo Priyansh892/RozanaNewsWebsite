@@ -6,34 +6,33 @@
     </button>
     <div class="collapse navbar-collapse" [class.show]="isNavbarOpen">
       <ul class="navbar-nav ms-auto">
-        <!-- All News -->
         <li class="nav-item">
           <a class="nav-link" routerLink="/all-news" routerLinkActive="active" (click)="closeNavbar()">All News</a>
         </li>
 
-        <!-- Top Headlines Dropdown -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="headlinesDropdown" role="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
+          <a class="nav-link dropdown-toggle" id="headlinesDropdown" role="button" data-bs-toggle="dropdown">
             Top Headlines
           </a>
-          <ul class="dropdown-menu" aria-labelledby="headlinesDropdown">
+          <ul class="dropdown-menu shadow" aria-labelledby="headlinesDropdown">
             <li *ngFor="let category of categories">
-              <a class="dropdown-item" (click)="navigateToTopHeadlines(category); closeNavbar()">{{ category }}</a>
+              <a class="dropdown-item text-capitalize" (click)="navigateToTopHeadlines(category); closeNavbar()">{{ category }}</a>
             </li>
           </ul>
         </li>
 
-        <!-- Countries Dropdown -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="countriesDropdown" role="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
+          <a class="nav-link dropdown-toggle" id="countriesDropdown" role="button" data-bs-toggle="dropdown">
             Countries
           </a>
-          <ul class="dropdown-menu" aria-labelledby="countriesDropdown">
+          <ul class="dropdown-menu dropdown-menu-end custom-dropdown-scroll shadow" aria-labelledby="countriesDropdown">
             <li *ngFor="let country of countries">
-              <a class="dropdown-item" (click)="navigateToCountryNews(country.countryName); closeNavbar()">{{
-                country.countryName }}</a>
+              <a class="dropdown-item d-flex justify-content-between align-items-center" 
+                 [class.active-item]="selectedCountry === country.countryName"
+                 (click)="navigateToCountryNews(country.countryName); closeNavbar()">
+                {{ country.countryName }}
+                <i *ngIf="selectedCountry === country.countryName" class="bi bi-check2 text-info"></i>
+              </a>
             </li>
           </ul>
         </li>
@@ -64,6 +63,6 @@
   </div>
 </nav>
 
-<main style="margin-top: 80px;">
+<main style="margin-top: 120px;">
   <router-outlet></router-outlet>
 </main>
