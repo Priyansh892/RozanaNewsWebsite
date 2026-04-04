@@ -1,48 +1,84 @@
-<!-- Cards Container -->
-<div class="container my-4" *ngIf="!isLoading">
+<div *ngIf="error" class="container mt-4">
+  <div class="alert alert-custom text-center">
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="fetchData()">Retry</button>
+  </div>
+</div>
+
+<!-- LOADING SKELETON -->
+<div class="container my-4" *ngIf="isLoading">
   <div class="row">
-    <ng-container *ngIf="data.length > 0; else noData">
-      <div class="col-md-4 mb-4" *ngFor="let article of data; let i = index">
-        <div class="card h-100">
-          <!-- Image with placeholder -->
-          <img 
-            [src]="article.urlToImage ? article.urlToImage : 'assets/googleNews.png'" 
-            class="card-img-top img-fluid" 
-            [alt]="article.title ? article.title : 'Image unavailable'"
-            style="height: 200px; object-fit: cover;" 
-          />
-          <div class="card-body">
-            <!-- Title with fallback and truncation -->
-            <h5 class="card-title">
-              {{ article.title ? (article.title | slice:0:50) + '...' : 'No Title Available' }}
-            </h5>
-            <!-- Description with fallback and truncation -->
-            <p class="card-text">
-              {{ article.description ? (article.description | slice:0:100) + '...' : 'No description available for this article.' }}
-            </p>
-            <!-- Read more link -->
-            <a 
-              [href]="article.url ? article.url : '#'" 
-              class="btn btn-primary" 
-              target="_blank" 
-              [class.disabled]="!article.url"
-            >
-              Read More
-            </a>
-          </div>
-          <div class="card-footer text-muted">
-            <!-- Published Date with fallback -->
-            Published on: {{ article.publishedAt ? (article.publishedAt) : 'Date not available' }} 
-            | Author: {{ article.author ? article.author : 'Unknown' }} 
-            | Source: {{ article.source?.name ? article.source.name : 'Unknown' }}
-            <!-- Share and Save Buttons -->
-            <app-shared-news [article]="article"></app-shared-news>
-          </div>
+    <div class="col-md-4 mb-4" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-text title"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text short"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEWS CARDS -->
+<div class="container my-5" *ngIf="!isLoading">
+  <div class="row" *ngIf="data.length > 0; else noData">
+    <div class="col-md-4 mb-4" *ngFor="let article of data">
+      <div class="news-card h-100">
+        <div class="img-wrapper">
+          <img [src]="article.urlToImage || 'assets/googleNews.png'"
+               (error)="handleImageError($event)"
+               [alt]="article.title" />
+          <span class="badge bg-primary source-badge">
+            {{ article.source?.name || 'News' }}
+          </span>
+        </div>
+        <div class="p-3">
+          <h5 class="card-title">
+            {{ article.title || 'No Title Available' }}
+          </h5>
+          <p class="card-text">
+            {{ article.description || 'No description available.' }}
+          </p>
+          <a [href]="article.url"
+             target="_blank"
+             class="btn btn-read"
+             [class.disabled]="!article.url">
+            Read Full Story
+          </a>
+        </div>
+        <div class="card-footer bg-white border-top-0">
+          <small class="text-muted">
+            {{ article.publishedAt | date:'mediumDate' }} •
+            {{ article.author || 'Staff' }}
+          </small>
+          <!-- Share and Save Buttons -->
+          <app-shared-news [article]="article"></app-shared-news>
         </div>
       </div>
-    </ng-container>
-    <ng-template #noData>
-      <p class="text-center text-muted">No news articles found for this criteria.</p>
-    </ng-template>
+    </div>
+  </div>
+
+  <ng-template #noData>
+    <div class="text-center my-5">
+      <h4 class="text-muted">No news found</h4>
+    </div>
+  </ng-template>
+</div>
+<div *ngIf="!isLoading && totalResults > 0" class="fixed-pagination-container">
+  <div class="glass-pagination">
+
+    <button class="page-btn"
+            (click)="handlePrev()"
+            [disabled]="page <= 1">
+      ← Prev
+    </button>
+
+    <span>Page <strong>{{ page }}</strong> of {{ totalPages }}</span>
+
+    <button class="page-btn"
+            (click)="handleNext()"
+            [disabled]="page >= totalPages">
+      Next →
+    </button>
   </div>
 </div>

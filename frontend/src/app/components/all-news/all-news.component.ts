@@ -6,9 +6,17 @@ import { SharedNewsComponent } from '../shared-news/shared-news.component';
 @Component({
   selector: 'app-all-news',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, NgClass, SlicePipe,DatePipe,SharedNewsComponent],
+  imports: [
+    FormsModule,
+    NgIf,
+    NgFor,
+    NgClass,
+    SlicePipe,
+    DatePipe,
+    SharedNewsComponent,
+  ],
   templateUrl: './all-news.component.html',
-  styleUrls: ['./all-news.component.css']
+  styleUrls: ['./all-news.component.css'],
 })
 export class AllNewsComponent implements OnInit {
   data: any[] = [];
@@ -27,37 +35,36 @@ export class AllNewsComponent implements OnInit {
 
   fetchNews(): void {
     this.isLoading = true;
-    this.newsService.getAllNews(this.page, this.max).subscribe(
-      (response) => {
+    this.error = null; // Reset error on retry
+
+    this.newsService.getAllNews(this.page, this.max).subscribe({
+      next: (response) => {
         if (response.success) {
-          // this.totalResults = response.data.totalArticles;
           this.totalResults = response.data.totalResults;
           this.data = response.data.articles;
           this.calculateTotalPages();
-          console.log(this.totalPages)
-          console.log(this.totalResults)
-          // console.log('Fetched articles:', this.data); // Debugging statement
         } else {
           this.error = response.message || 'An error occurred';
         }
         this.isLoading = false;
       },
-      (error) => {
-        console.error('Fetch error:', error);
-        this.error = 'Failed to fetch news. Please try again later.';
+      error: (err) => {
+        console.error('Fetch error:', err);
+        this.error = 'Failed to fetch news. Please check your connection.';
         this.isLoading = false;
-      }
-    );
+      },
+    });
   }
 
   calculateTotalPages(): void {
-    this.totalPages = Math.ceil(this.totalResults / this.max + 1);
+    this.totalPages = Math.ceil(this.totalResults / this.max);
   }
 
   handlePrev(): void {
     if (this.page > 1) {
       this.page--;
       this.fetchNews();
+      this.scrollToTop();
     }
   }
 
@@ -65,6 +72,19 @@ export class AllNewsComponent implements OnInit {
     if (this.page < this.totalPages) {
       this.page++;
       this.fetchNews();
+      this.scrollToTop();
     }
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  handleImageError(event: any): void {
+    event.target.src = 'assets/googleNews.png';
+  }
+
+  trackByUrl(index: number, item: any): string {
+    return item.url;
   }
 }
