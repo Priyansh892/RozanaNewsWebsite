@@ -39,46 +39,53 @@
 //   }
 // };
 
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');  // Assuming your model is in the 'models' directory
-const mongoose = require('mongoose');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const mongoose = require("mongoose");
 
+// Protect middleware: expects a short-lived access token in cookie `accessToken` or
+// Authorization header Bearer <token>. Verifies and attaches `req.user`.
 exports.protect = async (req, res, next) => {
   try {
-    // Extract token from cookies or authorization header
-    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
+    const authHeader = req.headers["authorization"];
+    const tokenFromHeader =
+      authHeader && authHeader.split(" ")[0] === "Bearer"
+        ? authHeader.split(" ")[1]
+        : null;
+    const token = req.cookies.accessToken || tokenFromHeader;
 
     if (!token) {
-      return res.status(403).json({ error: 'No token provided' });
+      return res.status(401).json({ error: "Access token missing" });
     }
 
-    // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    console.log(decoded.user._id)
-    // Validate that the decoded payload contains a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(decoded.user._id)) {
-      console.log(decoded.user._id)
-      return res.status(400).json({ error: 'Invalid user ID inside token' });
+    let decoded;
+    try {
+      decoded = jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET_KEY,
+      );
+    } catch (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ error: "Access token expired" });
+      }
+      return res.status(401).json({ error: "Invalid access token" });
     }
 
-    // Attach userId (ObjectId) to the request object
-    req.userId = decoded.user._id;
-
-    // Fetch the user from the database to confirm existence and status
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    // Expect payload to contain user id as `userId` or nested `user._id`
+    const userId =
+      decoded.userId || (decoded.user && decoded.user._id) || decoded._id;
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user id in token" });
     }
 
-    // Attach user details to the request object
+    const user = await User.findById(userId).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
     req.user = user;
-
-    // Proceed to the next middleware or route handler
     next();
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    return res.status(500).json({ error: 'An error occurred while verifying the token' });
+    return res
+      .status(500)
+      .json({ error: "An error occurred while verifying the token" });
   }
 };

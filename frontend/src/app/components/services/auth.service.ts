@@ -14,7 +14,7 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private router = inject(Router);
-  private cookieService = inject(CookieService);
+  private cookieService = inject(CookieService); // injected at field level, not inside constructor
   private platformId = inject(PLATFORM_ID);
 
   private currentUserSubject = new BehaviorSubject<any>(null);
@@ -23,13 +23,17 @@ export class AuthService {
   private loggedIn = false;
 
   constructor() {
-    // ✅ Only run cookie logic in the browser
     if (isPlatformBrowser(this.platformId)) {
       const userDetails = this.cookieService.get('userDetails');
       if (userDetails) {
-        const parsed = JSON.parse(userDetails);
-        this.loggedIn = true;
-        this.currentUserSubject.next(parsed);
+        try {
+          const parsed = JSON.parse(userDetails);
+          this.loggedIn = true;
+          this.currentUserSubject.next(parsed);
+        } catch {
+          // corrupt cookie — clear it
+          this.cookieService.delete('userDetails', '/');
+        }
       }
     }
   }
@@ -40,95 +44,118 @@ export class AuthService {
 
   register(username: string, password: string, email: string): Observable<any> {
     return this.http
-      .post<any>(`${this.apiUrl}/register`, { username, password, email })
+      .post<any>(
+        `${this.apiUrl}/register`,
+        { username, password, email },
+        { withCredentials: true },
+      )
       .pipe(
         tap((response) => {
-          if (isPlatformBrowser(this.platformId)) {
-            this.cookieService.set('token', response.token, 1, '/');
-            this.cookieService.set(
-              'userDetails',
-              JSON.stringify({ username, email: response.user.email }),
-              1,
-              '/',
-            );
-          }
-
-          this.loggedIn = true;
-          this.currentUserSubject.next({
-            username,
-            email: response.user.email,
-          });
+          this.onAuthSuccess(response.user);
         }),
       );
   }
 
   login(username: string, password: string): Observable<any> {
     return this.http
-      .post<any>(`${this.apiUrl}/login`, { username, password })
+      .post<any>(
+        `${this.apiUrl}/login`,
+        { username, password },
+        { withCredentials: true },
+      )
       .pipe(
         tap((response) => {
-          if (isPlatformBrowser(this.platformId)) {
-            this.cookieService.set('token', response.token, 1, '/');
-            this.cookieService.set(
-              'userDetails',
-              JSON.stringify({ username, email: response.user.email }),
-              1,
-              '/',
-            );
-          }
-
-          this.loggedIn = true;
-          this.currentUserSubject.next({
-            username,
-            email: response.user.email,
-          });
+          this.onAuthSuccess(response.user);
         }),
       );
   }
 
   logout(): void {
-    this.http.post<void>(`${this.apiUrl}/logout`, {}).subscribe({
-      next: () => {
-        if (isPlatformBrowser(this.platformId)) {
-          this.cookieService.delete('token', '/');
-          this.cookieService.delete('userDetails', '/');
-        }
-
-        this.loggedIn = false;
-        this.currentUserSubject.next(null);
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        console.error('Logout failed', err);
-      },
-    });
+    this.http
+      .post<void>(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .subscribe({
+        next: () => this.clearSession(),
+        error: (err) => {
+          console.error('Logout failed', err);
+          // Clear local session even if server call fails
+          this.clearSession();
+        },
+      });
   }
 
+  // Called by the interceptor when refresh fails — clears session without making server call
+  forceLogout(): void {
+    this.clearSession();
+  }
+
+  // consistent behavior in both browser and SSR environments.
+  // Previously the SSR branch sent plaintext passwords while the browser branch hashed them.
+  // Now both environments send plaintext — password security is handled entirely server-side by bcrypt.
   resetPassword(
     username: string,
     newPassword: string,
     confirmPassword: string,
   ): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/forgot-password`, {
-      username,
-      newPassword,
-      confirmPassword,
-    });
+    return this.http.post<any>(
+      `${this.apiUrl}/forgot-password`,
+      { username, newPassword, confirmPassword },
+      { withCredentials: true },
+    );
   }
 
+  // Called by AuthInterceptor to rotate tokens when access token expires
+  refreshTokens(): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/refresh-token`,
+      {},
+      { withCredentials: true },
+    );
+  }
+
+  // isLoggedIn now also validates that the actual auth state is consistent.
+  // If userDetails cookie exists but loggedIn flag is false (e.g. after SSR hydration),
+  // we restore state from the cookie.
   isLoggedIn(): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
-    return this.loggedIn || !!this.cookieService.get('userDetails');
+    if (this.loggedIn) return true;
+
+    // Fallback: try to restore from cookie on page refresh
+    const userDetails = this.cookieService.get('userDetails');
+    if (userDetails) {
+      try {
+        const parsed = JSON.parse(userDetails);
+        this.loggedIn = true;
+        this.currentUserSubject.next(parsed);
+        return true;
+      } catch {
+        this.cookieService.delete('userDetails', '/');
+      }
+    }
+    return false;
   }
 
   getUsername(): string {
-    if (!isPlatformBrowser(this.platformId)) {
-      return '';
-    }
-
+    if (!isPlatformBrowser(this.platformId)) return '';
     const userDetails = this.cookieService.get('userDetails');
     return userDetails ? JSON.parse(userDetails).username : '';
+  }
+
+  private onAuthSuccess(user: any): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.cookieService.set('userDetails', JSON.stringify(user), 7, '/');
+    }
+    this.loggedIn = true;
+    this.currentUserSubject.next(user);
+  }
+
+  private clearSession(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.cookieService.delete('userDetails', '/');
+    }
+    this.loggedIn = false;
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
   }
 }
