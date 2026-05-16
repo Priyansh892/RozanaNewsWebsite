@@ -1,17 +1,18 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgClass, NgIf } from '@angular/common';
-import { CookieService } from 'ngx-cookie-service';
-import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  providers: [AuthService],
+  // Removed `providers: [AuthService]` — it was creating a component-scoped instance
+  // separate from the root instance, causing loggedIn state and BehaviorSubject to be
+  // out of sync with the rest of the app. AuthService is providedIn: 'root' and should
+  // be injected from the root injector everywhere.
   imports: [FormsModule, NgIf, NgClass],
 })
 export class LoginComponent {
@@ -20,42 +21,38 @@ export class LoginComponent {
   newsLoginImage = 'assets/newsLogin.png';
   errorMessage = '';
   success = false;
+  isLoading = false;
 
   private authService = inject(AuthService);
   private router = inject(Router);
-  private platformId = inject(PLATFORM_ID);
-
-  // CookieService will be injected lazily in browser
-  private cookieService!: CookieService;
-
-  constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.cookieService = inject(CookieService);
-    }
-  }
 
   login(form: NgForm) {
-    this.authService.login(this.username, this.password).subscribe(
-      (response) => {
-        if (isPlatformBrowser(this.platformId) && this.cookieService) {
-          this.cookieService.set('token', response.token); // Store token in cookie
-        }
+    if (form.invalid) return;
+
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.authService.login(this.username, this.password).subscribe({
+      next: () => {
         this.success = true;
+        this.isLoading = false;
         this.router.navigate(['/all-news']);
       },
-      (error) => {
-        console.clear();
+      error: (error) => {
+        this.isLoading = false;
         if (error.status === 400) {
           this.errorMessage =
-            error.error.message || 'Invalid credentials. Please try again.';
+            error.error?.message || 'Please fill in all required fields.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Invalid username or password. Please try again.';
         } else if (error.status === 500) {
           this.errorMessage =
-            'An unexpected error occurred. Please try again later.';
+            'An unexpected server error occurred. Please try again later.';
         } else {
           this.errorMessage = 'Something went wrong. Please try again.';
         }
       },
-    );
+    });
   }
 
   forgotPassword() {
@@ -67,11 +64,8 @@ export class LoginComponent {
   }
 
   get alertClass() {
-    if (this.success) {
-      return 'alert alert-success';
-    } else if (this.errorMessage) {
-      return 'alert alert-danger';
-    }
+    if (this.success) return 'alert alert-success';
+    if (this.errorMessage) return 'alert alert-danger';
     return '';
   }
 }

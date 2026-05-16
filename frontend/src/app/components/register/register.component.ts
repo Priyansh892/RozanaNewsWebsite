@@ -1,79 +1,73 @@
-
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { FormsModule } from '@angular/forms';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   standalone: true,
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  providers: [AuthService],
-  imports: [FormsModule, NgFor, NgIf, NgClass]
+  imports: [FormsModule, NgIf, NgClass],
 })
 export class RegisterComponent {
   username = '';
   email = '';
   password = '';
   confirmPassword = '';
-  newsLoginImage='assets/newsLogin.png';
-  registrationSuccess = false;  // Flag to handle success message
-  registrationError = '';  // String to store error message
-  submitted = false;  // Flag to track if the form has been submitted
-  passwordMismatch = false; // Flag to handle password mismatch error
+  newsLoginImage = 'assets/newsLogin.png';
+  registrationSuccess = false;
+  registrationError = '';
+  submitted = false;
+  passwordMismatch = false;
+  isLoading = false;
 
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  // Method to handle form submission
-  onSubmit(registerForm: any) {
+  onSubmit(registerForm: NgForm) {
     this.submitted = true;
+    this.registrationError = '';
     this.passwordMismatch = this.password !== this.confirmPassword;
 
-    // Check if the form is valid and passwords match
-    if (registerForm.valid && !this.passwordMismatch) {
-      this.register();
-    }
-  }
+    if (registerForm.invalid || this.passwordMismatch) return;
 
-  // Method to register the user
-  private register() {
-    this.authService.register(this.username, this.password, this.email).subscribe({
-      next: (response) => {
-        // On successful registration
-        this.registrationSuccess = true;
-        this.registrationError = ''; // Clear previous errors
-        // Redirect to polls page after a short delay
-        setTimeout(() => {
-          this.router.navigate(['/all-news']);
-        }, 1500);
-      },
-      error: (error) => {
-       // console.clear();
-        // Handle specific errors based on the error message from the server
-        if (error.status === 400) {
-            this.registrationError = 'Username is already taken. Kindly login into the account.';
-        } else {
-          // Handle unexpected errors
-          this.registrationError = 'An unexpected error occurred. Please try again later.';
-        }
-      }
-    });
+    this.isLoading = true;
+
+    this.authService
+      .register(this.username, this.password, this.email)
+      .subscribe({
+        next: () => {
+          this.registrationSuccess = true;
+          this.isLoading = false;
+          setTimeout(() => this.router.navigate(['/all-news']), 1500);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          // backend returns specific messages for username taken vs email taken.
+          // Previously all 400s showed the same "username taken" message even for email conflicts.
+          if (error.status === 400) {
+            this.registrationError =
+              error.error?.message ||
+              'Registration failed. Please check your details.';
+          } else if (error.status === 500) {
+            this.registrationError =
+              'An unexpected server error occurred. Please try again later.';
+          } else {
+            this.registrationError = 'Something went wrong. Please try again.';
+          }
+        },
+      });
   }
 
   redirectToLogin() {
-    this.router.navigate(['/login']); // Adjust the route as needed
+    this.router.navigate(['/login']);
   }
 
   get alertClass() {
-    if (this.registrationSuccess) {
-      return 'alert alert-success';
-    } else if (this.registrationError) {
-      return 'alert alert-danger';
-    }
+    if (this.registrationSuccess) return 'alert alert-success';
+    if (this.registrationError) return 'alert alert-danger';
     return '';
   }
 }
-

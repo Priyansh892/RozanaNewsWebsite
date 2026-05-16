@@ -1,105 +1,82 @@
 <div class="register-container">
   <div class="register-box">
     <div class="register-image">
-      <img [src]="newsLoginImage" alt="Register Image">
+      <img [src]="newsLoginImage" alt="Register Image" />
     </div>
+
     <div class="register-form">
-      <h2>Register to Poll</h2>
+      <h2>Never Miss a Headline - Join Free</h2>
+
       <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm" novalidate>
-        <!-- Username Field -->
+
+        <!-- Username -->
         <div class="form-group">
           <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            class="form-control"
-            placeholder="Enter your username"
-            [(ngModel)]="username"
-            name="username"
-            #usernameField="ngModel"
-            [ngClass]="{'is-invalid': submitted && usernameField.invalid}"
-            required
-            minlength="3"
-          />
-          <div *ngIf="submitted && usernameField.invalid" class="invalid-feedback">
-            <div *ngIf="usernameField.errors?.['required']">Username is required.</div>
-            <div *ngIf="usernameField.errors?.['minlength']">Username must be at least 3 characters long.</div>
+          <input type="text" id="username" class="form-control" placeholder="Enter your username" [(ngModel)]="username"
+            name="username" #usernameField="ngModel" required minlength="3"
+            [ngClass]="{ 'is-invalid': usernameField.invalid && (usernameField.touched || submitted) }" />
+          <!-- Validation shows on touch OR after submit attempt, not only after submit -->
+          <div *ngIf="usernameField.invalid && (usernameField.touched || submitted)" class="invalid-feedback">
+            <span *ngIf="usernameField.errors?.['required']">Username is required.</span>
+            <span *ngIf="usernameField.errors?.['minlength']">Username must be at least 3 characters.</span>
           </div>
         </div>
-        <!-- Email Field -->
-        <div class="form-group input-icon">
+
+        <!-- Email -->
+        <div class="form-group">
           <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            class="form-control"
-            placeholder="Enter your email id"
-            [(ngModel)]="email"
-            name="email"
-            #emailField="ngModel"
-            [ngClass]="{'is-invalid': submitted && emailField.invalid}"
-            required
-            email
-          />
-          <div *ngIf="submitted && emailField.invalid" class="invalid-feedback">
-            <div *ngIf="emailField.errors?.['required']">Email is required.</div>
-            <div *ngIf="emailField.errors?.['email']">Invalid email format.</div>
+          <input type="email" id="email" class="form-control" placeholder="Enter your email" [(ngModel)]="email"
+            name="email" #emailField="ngModel" required email
+            [ngClass]="{ 'is-invalid': emailField.invalid && (emailField.touched || submitted) }" />
+          <div *ngIf="emailField.invalid && (emailField.touched || submitted)" class="invalid-feedback">
+            <span *ngIf="emailField.errors?.['required']">Email is required.</span>
+            <span *ngIf="emailField.errors?.['email']">Please enter a valid email address.</span>
           </div>
         </div>
-        <!-- Password Field -->
+
+        <!-- Password -->
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Enter your secured password"
-            class="form-control"
-            [(ngModel)]="password"
-            name="password"
-            #passwordField="ngModel"
-            [ngClass]="{'is-invalid': submitted && passwordField.invalid}"
-            required
-            minlength="6"
-          />
-          <div *ngIf="submitted && passwordField.invalid" class="invalid-feedback">
-            <div *ngIf="passwordField.errors?.['required']">Password is required.</div>
-            <div *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters long.</div>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password"
+            [(ngModel)]="password" name="password" #passwordField="ngModel" required minlength="6"
+            [ngClass]="{ 'is-invalid': passwordField.invalid && (passwordField.touched || submitted) }" />
+          <div *ngIf="passwordField.invalid && (passwordField.touched || submitted)" class="invalid-feedback">
+            <span *ngIf="passwordField.errors?.['required']">Password is required.</span>
+            <span *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters.</span>
           </div>
         </div>
-        <!-- Re-enter Password Field -->
+
+        <!-- Confirm Password -->
         <div class="form-group">
           <label for="confirmPassword">Re-enter Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            placeholder="Re-enter your secured password"
-            class="form-control"
-            [(ngModel)]="confirmPassword"
-            name="confirmPassword"
-            #confirmPasswordField="ngModel"
-            [ngClass]="{'is-invalid': submitted && (confirmPasswordField.invalid || passwordMismatch)}"
-            required
-            minlength="6"
-          />
-          <div *ngIf="submitted && (confirmPasswordField.invalid || passwordMismatch)" class="invalid-feedback">
-            <div *ngIf="confirmPasswordField.errors?.['required']">Please re-enter your password.</div>
-            <div *ngIf="confirmPasswordField.errors?.['minlength']">Re-entered password must be at least 6 characters long.</div>
-            <div *ngIf="passwordMismatch">Passwords do not match.</div>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter your password"
+            [(ngModel)]="confirmPassword" name="confirmPassword" #confirmPasswordField="ngModel" required minlength="6"
+            [ngClass]="{ 'is-invalid': (confirmPasswordField.invalid || passwordMismatch) && (confirmPasswordField.touched || submitted) }" />
+          <div *ngIf="(confirmPasswordField.invalid || passwordMismatch) && (confirmPasswordField.touched || submitted)"
+            class="invalid-feedback">
+            <span *ngIf="confirmPasswordField.errors?.['required']">Please re-enter your password.</span>
+            <span *ngIf="confirmPasswordField.errors?.['minlength']">Password must be at least 6 characters.</span>
+            <!-- passwordMismatch only shown when both fields have values, avoiding premature error -->
+            <span *ngIf="passwordMismatch && !confirmPasswordField.errors?.['required']">Passwords do not match.</span>
           </div>
         </div>
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Register</button>
 
-        <!-- Sign In Link -->
-        <div class="sign-in-link">
-          <p>Already have an account? <a (click)="redirectToLogin()">Sign in</a></p>
-        </div>
+        <!-- Submit -->
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Register</span>
+          <span *ngIf="isLoading">Registering...</span>
+        </button>
+
       </form>
 
-      <!-- Display success or error messages -->
-      <div [ngClass]="alertClass" role="alert" *ngIf="registrationSuccess || registrationError">
-        <div *ngIf="registrationSuccess">Registration successful! Redirecting...</div>
-        <div *ngIf="registrationError">{{ registrationError }}</div>
+      <!-- Single unified alert block — success or error, never both -->
+      <div *ngIf="registrationSuccess || registrationError" [ngClass]="alertClass" role="alert">
+        <span *ngIf="registrationSuccess">Registration successful! Redirecting...</span>
+        <span *ngIf="registrationError && !registrationSuccess">{{ registrationError }}</span>
+      </div>
+
+      <div class="sign-in-link">
+        <p>Already have an account? <a (click)="redirectToLogin()">Sign in</a></p>
       </div>
     </div>
   </div>
