@@ -1,4 +1,5 @@
-const axios = require('axios');
+const axios = require("axios");
+const { buildKey, withCache } = require("../utils/cacheUtils");
 const SavedNews = require('../models/SavedNews');
 const User=require('../models/User');
 async function makeApiRequest(url) {
@@ -11,44 +12,98 @@ async function makeApiRequest(url) {
       data: response.data,
     };
   } catch (error) {
-    console.error("API request error:", error.response ? error.response.data : error.message);
+    console.error(
+      "[NewsAPI] Request error:",
+      error.response?.data || error.message,
+    );
     return {
       status: 500,
       success: false,
-      message: "Failed to fetch data from the API",
-      error: error.response ? error.response.data : error.message,
+      message: "Failed to fetch data from the News API",
+      error: error.response?.data || error.message,
     };
   }
 }
 
 exports.getAllNews = async (req, res) => {
- let page = parseInt(req.query.page) || 1;
- let pageSize = parseInt(req.query.pageSize) || 80;
- let q = req.query.q || 'world';
- let url=`https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`
- 
- const result = await makeApiRequest(url);
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 80;
+  const q = req.query.q || "world";
+
+  const cacheKey = buildKey.allNews(q, page, pageSize);
+
+  const result = await withCache(cacheKey, () => {
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    return makeApiRequest(url);
+  });
+
   res.status(result.status).json(result);
 };
 
 exports.getTopHeadlines = async (req, res) => {
-  let page = parseInt(req.query.page) || 1;
-  let pageSize = parseInt(req.query.pageSize) || 80;
-  let category = req.query.category || "general";
-  let url = `https://newsapi.org/v2/top-headlines?category=${category}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
-  const result = await makeApiRequest(url);
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 80;
+  const category = req.query.category || "general";
+
+  const cacheKey = buildKey.headlines(category, page, pageSize);
+
+  const result = await withCache(cacheKey, () => {
+    const url = `https://newsapi.org/v2/top-headlines?category=${category}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    return makeApiRequest(url);
+  });
+
   res.status(result.status).json(result);
 };
 
 exports.getTopHeadlinesByCountry = async (req, res) => {
-  let page = parseInt(req.query.page) || 1;
-  let pageSize = parseInt(req.query.pageSize) || 80;
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 80;
   const country = req.params.iso;
-  let url = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${process.env.NEWS_API_KEY}&page=${page}&pageSize=${pageSize}`;
-  const result = await makeApiRequest(url);
+
+  const cacheKey = buildKey.country(country, page, pageSize);
+
+  const result = await withCache(cacheKey, () => {
+    const url = `https://newsapi.org/v2/top-headlines?country=${country}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    return makeApiRequest(url);
+  });
+
   res.status(result.status).json(result);
 };
 
+exports.shareNews = async (req, res) => {
+  try {
+    const { url, title } = req.body;
+    if (!url || !title) {
+      return res
+        .status(400)
+        .json({ success: false, message: "url and title are required" });
+    }
+
+    const encodedUrl = encodeURIComponent(url);
+    const encodedTitle = encodeURIComponent(title);
+
+    const socialMediaLinks = {
+      whatsapp: `https://api.whatsapp.com/send?text=${encodedTitle} ${encodedUrl}`,
+      twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`,
+      email: `mailto:?subject=${encodedTitle}&body=Check out this news: ${encodedUrl}`,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Share links generated successfully",
+      socialMediaLinks,
+    });
+  } catch (error) {
+    console.error("[shareNews] Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate share links",
+      error: error.message,
+    });
+  }
+};
 
 // exports.saveNews = async (req, res) => {
 //   try {
@@ -94,38 +149,6 @@ exports.getTopHeadlinesByCountry = async (req, res) => {
 //   }
 // };
 
-
-
-exports.shareNews = async (req, res) => {
-  try {
-    const { url, title } = req.body;
-    
-    const encodedUrl = encodeURIComponent(url);
-    const encodedTitle = encodeURIComponent(title);
-
-    const socialMediaLinks = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-      linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`,
-      whatsapp: `https://api.whatsapp.com/send?text=${encodedTitle} ${encodedUrl}`,
-      email: `mailto:?subject=${encodedTitle}&body=Check out this news: ${encodedUrl}`,
-    };
-
-    res.status(200).json({
-      success: true,
-      message: "Social media share links generated successfully!",
-      socialMediaLinks,
-    });
-  } catch (error) {
-    console.error("Error generating share links:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to generate share links",
-      error: error.message,
-    });
-  }
-};
-
 // exports.getSavedNews = async (req, res) => {
 //   try {
 //     const userId = req.userId;
@@ -144,9 +167,3 @@ exports.shareNews = async (req, res) => {
 //     });
 //   }
 // };
-
-
-
-
-
-
