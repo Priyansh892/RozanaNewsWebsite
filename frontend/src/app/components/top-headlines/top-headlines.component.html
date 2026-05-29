@@ -29,9 +29,8 @@
 
         <!-- IMAGE -->
         <div class="img-wrapper">
-          <img [src]="article.urlToImage || 'assets/googleNews.png'"
-               (error)="handleImageError($event)"
-               [alt]="article.title" />
+          <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
+            [alt]="article.title" />
           <span class="badge bg-primary source-badge">
             {{ article.source?.name || 'News' }}
           </span>
@@ -47,10 +46,7 @@
             {{ article.description || 'No description available.' }}
           </p>
 
-          <a [href]="article.url"
-             target="_blank"
-             class="btn btn-read"
-             [class.disabled]="!article.url">
+          <a [href]="article.url" target="_blank" class="btn btn-read" [class.disabled]="!article.url">
             Read Full Story
           </a>
         </div>
@@ -61,7 +57,8 @@
             {{ article.author || 'Staff' }}
           </small>
           <!-- Share and Save Buttons -->
-          <app-shared-news [article]="article"></app-shared-news>
+          <app-shared-news [article]="article" (shareClicked)="openShareModal($event)">
+          </app-shared-news>
         </div>
       </div>
     </div>
@@ -79,18 +76,60 @@
 <div *ngIf="!isLoading && totalResults > 0" class="fixed-pagination-container">
   <div class="glass-pagination">
 
-    <button class="page-btn"
-            (click)="handlePrev()"
-            [disabled]="page <= 1">
+    <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">
       ← Prev
     </button>
 
     <span>Page <strong>{{ page }}</strong> of {{ totalPages }}</span>
 
-    <button class="page-btn"
-            (click)="handleNext()"
-            [disabled]="page >= totalPages">
+    <button class="page-btn" (click)="handleNext()" [disabled]="page >= totalPages">
       Next →
+    </button>
+
+  </div>
+</div>
+
+<!-- GLOBAL SHARE MODAL -->
+<div class="modal" *ngIf="showShareModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <h2>Share this news</h2>
+    <div class="shared-news-preview">
+
+      <img [src]="selectedArticle?.urlToImage || 'assets/googleNews.png'" alt="news image">
+
+      <h5>
+        {{ selectedArticle?.title }}
+      </h5>
+
+    </div>
+
+    <div class="social-buttons">
+
+      <button class="facebook" *ngIf="socialLinks.facebook" (click)="openSocialLink(socialLinks.facebook)">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </button>
+
+      <button class="twitter" *ngIf="socialLinks.twitter" (click)="openSocialLink(socialLinks.twitter)">
+        <i class="fab fa-x-twitter"></i> Twitter
+      </button>
+
+      <button class="linkedin" *ngIf="socialLinks.linkedin" (click)="openSocialLink(socialLinks.linkedin)">
+        <i class="fab fa-linkedin-in"></i> LinkedIn
+      </button>
+
+      <button class="whatsapp" *ngIf="socialLinks.whatsapp" (click)="openSocialLink(socialLinks.whatsapp)">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </button>
+
+      <button class="email" *ngIf="socialLinks.email" (click)="openSocialLink(socialLinks.email)">
+        <i class="fas fa-envelope"></i> Email
+      </button>
+
+    </div>
+
+    <button class="btn btn-danger" (click)="closeModal()">
+      Close
     </button>
 
   </div>
