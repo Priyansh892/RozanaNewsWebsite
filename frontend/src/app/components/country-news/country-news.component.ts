@@ -12,7 +12,7 @@ import { countries } from '../countries';
   standalone: true,
   imports: [NgIf, NgFor, NgClass, DatePipe, UpperCasePipe, SharedNewsComponent],
   templateUrl: './country-news.component.html',
-  styleUrls: ['./country-news.component.css']
+  styleUrls: ['./country-news.component.css'],
 })
 export class CountryNewsComponent implements OnInit {
   data: any[] = [];
@@ -24,14 +24,15 @@ export class CountryNewsComponent implements OnInit {
   iso: string | null = null;
   totalPages = 1;
   selectedCountryName: string = '';
+  selectedArticle: any;
 
   constructor(
     private route: ActivatedRoute,
-    private newsService: NewsService
+    private newsService: NewsService,
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.iso = params.get('iso');
       if (this.iso) {
         this.updateCountryUI(this.iso);
@@ -42,25 +43,33 @@ export class CountryNewsComponent implements OnInit {
   }
 
   private updateCountryUI(code: string): void {
-    const country = countries.find(c => c.iso_2_alpha.toLowerCase() === code.toLowerCase());
-    this.selectedCountryName = country ? country.countryName : code.toUpperCase();
+    const country = countries.find(
+      (c) => c.iso_2_alpha.toLowerCase() === code.toLowerCase(),
+    );
+    this.selectedCountryName = country
+      ? country.countryName
+      : code.toUpperCase();
   }
 
   fetchData(): void {
     if (!this.iso) return;
-    
+
     this.isLoading = true;
     this.error = null;
 
-    this.newsService.getCountryNews(this.iso, this.page, this.max)
+    this.newsService
+      .getCountryNews(this.iso, this.page, this.max)
       .pipe(
         catchError(() => {
           this.error = 'Failed to fetch news. Please try again later.';
-          return of({ success: false, data: { articles: [], totalResults: 0 } });
+          return of({
+            success: false,
+            data: { articles: [], totalResults: 0 },
+          });
         }),
-        finalize(() => this.isLoading = false)
+        finalize(() => (this.isLoading = false)),
       )
-      .subscribe(response => {
+      .subscribe((response) => {
         if (response.success) {
           this.totalResults = response.data.totalResults;
           this.data = response.data.articles;
@@ -97,5 +106,34 @@ export class CountryNewsComponent implements OnInit {
 
   handleImageError(event: any): void {
     event.target.src = 'assets/googleNews.png';
+  }
+
+  showShareModal = false;
+  socialLinks: any = {};
+
+  openShareModal(article: any): void {
+    this.selectedArticle = article;
+
+    this.newsService.shareNews(article).subscribe(
+      (response: any) => {
+        this.socialLinks = response.socialMediaLinks;
+        this.showShareModal = true;
+
+        document.body.style.overflow = 'hidden';
+      },
+      (error) => {
+        console.error('Failed to share news:', error);
+      },
+    );
+  }
+
+  openSocialLink(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  closeModal(): void {
+    this.showShareModal = false;
+
+    document.body.style.overflow = 'auto';
   }
 }

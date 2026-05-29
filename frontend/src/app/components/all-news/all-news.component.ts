@@ -26,6 +26,7 @@ export class AllNewsComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
   totalPages = 1;
+  selectedArticle: any;
 
   constructor(private newsService: NewsService) {}
 
@@ -86,5 +87,34 @@ export class AllNewsComponent implements OnInit {
 
   trackByUrl(index: number, item: any): string {
     return item.url;
+  }
+
+  showShareModal = false;
+  socialLinks: any = {};
+
+  openShareModal(article: any): void {
+    this.selectedArticle = article;
+
+    this.newsService.shareNews(article).subscribe(
+      (response: any) => {
+        this.socialLinks = response.socialMediaLinks;
+        this.showShareModal = true;
+
+        document.body.style.overflow = 'hidden';
+      },
+      (error) => {
+        console.error('Failed to share news:', error);
+      },
+    );
+  }
+
+  openSocialLink(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  closeModal(): void {
+    this.showShareModal = false;
+
+    document.body.style.overflow = 'auto';
   }
 }

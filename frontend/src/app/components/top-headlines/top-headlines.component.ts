@@ -9,9 +9,9 @@ import { SharedNewsComponent } from '../shared-news/shared-news.component';
 @Component({
   selector: 'app-top-headlines',
   standalone: true,
-  imports: [NgIf,NgFor,NgClass,SlicePipe,DatePipe,SharedNewsComponent],
+  imports: [NgIf, NgFor, NgClass, SlicePipe, DatePipe, SharedNewsComponent],
   templateUrl: './top-headlines.component.html',
-  styleUrl: './top-headlines.component.css'
+  styleUrl: './top-headlines.component.css',
 })
 export class TopHeadlinesComponent {
   data: any[] = [];
@@ -22,14 +22,15 @@ export class TopHeadlinesComponent {
   error: string | null = null;
   max = 12;
   category: string | null = null;
+  selectedArticle: any;
 
   constructor(
     private route: ActivatedRoute,
-    private newsService: NewsService
+    private newsService: NewsService,
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       this.category = params.get('category');
       this.page = 1; // reset on category change
       this.fetchData();
@@ -40,9 +41,10 @@ export class TopHeadlinesComponent {
     this.isLoading = true;
     this.error = null;
 
-    this.newsService.getTopHeadlines(this.category || '', this.page, this.max)
+    this.newsService
+      .getTopHeadlines(this.category || '', this.page, this.max)
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           if (error.status === 0) {
             this.error = 'Network error. Check connection.';
           } else if (error.status >= 500) {
@@ -51,13 +53,16 @@ export class TopHeadlinesComponent {
             this.error = 'Failed to fetch news.';
           }
 
-          return of({ success: false, data: { articles: [], totalResults: 0 } });
+          return of({
+            success: false,
+            data: { articles: [], totalResults: 0 },
+          });
         }),
         finalize(() => {
           this.isLoading = false;
-        })
+        }),
       )
-      .subscribe(response => {
+      .subscribe((response) => {
         if (response.success) {
           this.totalResults = response.data.totalResults;
           this.data = response.data.articles;
@@ -89,7 +94,35 @@ export class TopHeadlinesComponent {
   }
 
   handleImageError(event: any): void {
-  event.target.src = 'assets/googleNews.png';
-}
-}
+    event.target.src = 'assets/googleNews.png';
+  }
 
+  showShareModal = false;
+  socialLinks: any = {};
+
+  openShareModal(article: any): void {
+    this.selectedArticle = article;
+
+    this.newsService.shareNews(article).subscribe(
+      (response: any) => {
+        this.socialLinks = response.socialMediaLinks;
+        this.showShareModal = true;
+
+        document.body.style.overflow = 'hidden';
+      },
+      (error) => {
+        console.error('Failed to share news:', error);
+      },
+    );
+  }
+
+  openSocialLink(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  closeModal(): void {
+    this.showShareModal = false;
+
+    document.body.style.overflow = 'auto';
+  }
+}

@@ -129,20 +129,35 @@
   overflow: hidden;
 }
 
-.skeleton-text.title { height: 20px; width: 80%; }
-.skeleton-text.short { width: 60%; }
+.skeleton-text.title {
+  height: 20px;
+  width: 80%;
+}
 
-.skeleton-img::after, .skeleton-text::after {
+.skeleton-text.short {
+  width: 60%;
+}
+
+.skeleton-img::after,
+.skeleton-text::after {
   content: "";
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* --- Custom Alert --- */
@@ -150,4 +165,124 @@
   background: #fff5f5;
   border-left: 5px solid #dc3545;
   color: #a94442;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 99999;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.social-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px 12px;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  color: white;
+}
+
+/* Facebook */
+.social-buttons .facebook {
+  background: #1877F2;
+}
+
+/* Twitter (X) */
+.social-buttons .twitter {
+  background: #000000;
+}
+
+/* LinkedIn */
+.social-buttons .linkedin {
+  background: #0A66C2;
+}
+
+/* WhatsApp */
+.social-buttons .whatsapp {
+  background: #25D366;
+}
+
+/* Email */
+.social-buttons .email {
+  background: #6c757d;
+}
+
+/* Hover effect */
+.social-buttons button:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  margin: 0.3125rem;
+  /* 5px */
+}
+
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.social-buttons i {
+  margin-right: 0.625rem;
+  /* 10px */
+  font-size: 1.25rem;
+  /* 20px */
+}
+
+.btn-danger {
+  margin-top: 0.625rem;
+  /* 10px */
+}
+
+.shared-news-preview {
+  margin-bottom: 15px;
+}
+
+.shared-news-preview img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.shared-news-preview h5 {
+  font-size: 16px;
+  font-weight: 600;
 }
