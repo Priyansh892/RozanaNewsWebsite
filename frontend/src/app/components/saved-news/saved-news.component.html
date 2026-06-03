@@ -1,140 +1,145 @@
 <div class="saved-page">
 
-  <!-- ── Header ─────────────────────────────────────── -->
-  <div class="saved-header">
-    <div class="header-content">
+  <div class="saved-header py-5 mb-4">
+    <div class="container">
       <h1 class="page-title">
-        <span class="title-icon">🔖</span>
+        <span class="title-icon me-2">🔖</span>
         Saved Articles
       </h1>
       <p class="page-subtitle">Your personal reading list - always here when you need it</p>
     </div>
   </div>
 
-  <!-- ── Collections Tabs ───────────────────────────── -->
-  <div class="collections-bar" *ngIf="collections.length > 1">
-    <div class="collections-scroll">
-      <button *ngFor="let col of collections" class="collection-tab" [ngClass]="{ active: selectedCollection === col }"
-        (click)="selectCollection(col)">
-        {{ col }}
-      </button>
+  <div class="collections-bar sticky-top py-2" *ngIf="collections.length > 1">
+    <div class="container">
+      <div class="collections-scroll d-flex gap-2">
+        <button *ngFor="let col of collections" class="collection-tab px-3 py-2"
+          [ngClass]="{ active: selectedCollection === col }" (click)="selectCollection(col)">
+          {{ col }}
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- ── Error ──────────────────────────────────────── -->
-  <div class="container" *ngIf="error">
-    <div class="error-banner">
+  <div class="container mt-4" *ngIf="error">
+    <div class="alert alert-custom text-center shadow-sm" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
       {{ error }}
-      <button (click)="loadSaved()">Retry</button>
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadSaved()">Retry</button>
     </div>
   </div>
 
-  <!-- ── Loading Skeleton ───────────────────────────── -->
-  <div class="container" *ngIf="isLoading">
-    <div class="cards-grid">
-      <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
-        <div class="sk-img"></div>
-        <div class="sk-body">
-          <div class="sk-line title"></div>
-          <div class="sk-line"></div>
-          <div class="sk-line short"></div>
+  <div class="container my-4" *ngIf="isLoading">
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="card skeleton-card h-100 shadow-sm">
+          <div class="skeleton-img"></div>
+          <div class="card-body">
+            <div class="skeleton-text title"></div>
+            <div class="skeleton-text body"></div>
+            <div class="skeleton-text body short"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── Empty State ────────────────────────────────── -->
-  <div class="empty-state" *ngIf="!isLoading && filteredArticles.length === 0 && !error">
-    <div class="empty-icon">📭</div>
-    <h3>Nothing saved yet</h3>
-    <p *ngIf="selectedCollection === 'All'">
+  <div class="text-center my-5 py-5 empty-state" *ngIf="!isLoading && filteredArticles.length === 0 && !error">
+    <div class="empty-icon display-4">📭</div>
+    <h3 class="text-muted mt-3">Nothing saved yet</h3>
+    <p *ngIf="selectedCollection === 'All'" class="text-muted">
       Hit the bookmark icon on any article to save it here.
     </p>
-    <p *ngIf="selectedCollection !== 'All'">
+    <p *ngIf="selectedCollection !== 'All'" class="text-muted">
       No articles in "{{ selectedCollection }}" yet.
     </p>
-    <button class="btn-browse" (click)="selectCollection('All')">Browse All Saved</button>
+    <button class="btn btn-browse mt-2" (click)="selectCollection('All')">Browse All Saved</button>
   </div>
 
-  <!-- ── Articles Grid ──────────────────────────────── -->
-  <div class="container" *ngIf="!isLoading && filteredArticles.length > 0">
-    <div class="cards-grid">
-      <div class="saved-card" *ngFor="let article of filteredArticles; trackBy: trackById">
+  <div class="container my-5" *ngIf="!isLoading && filteredArticles.length > 0">
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let article of filteredArticles; trackBy: trackById">
+        <div class="card h-100 news-card shadow-sm">
 
-        <!-- Image -->
-        <div class="card-img-wrap" (click)="openArticle(article.url)">
-          <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
-            [alt]="article.title" />
-          <span class="category-chip">{{ article.category }}</span>
-        </div>
-
-        <!-- Body -->
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="source-name">{{ article.source?.name || 'Unknown' }}</span>
-            <span class="dot">•</span>
-            <span class="read-date">{{ article.createdAt | date:'mediumDate' }}</span>
+          <div class="img-wrapper">
+            <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
+            class="card-img-top" [alt]="article.title" loading="lazy" />
+          <span class="badge bg-primary source-badge">
+            {{ article.source?.name || 'News' }}
+          </span>
           </div>
 
-          <h4 class="card-title" (click)="openArticle(article.url)">
-            {{ article.title || 'No Title' }}
-          </h4>
+          <div class="card-body">
+            <div class="card-meta small text-muted mb-2">
+              <span class="source-name">{{ article.source?.name || 'Unknown' }}</span>
+              <span class="dot">•</span>
+              <span class="read-date">{{ article.createdAt | date:'mediumDate' }}</span>
+            </div>
 
-          <p class="card-desc">
-            {{ article.description || 'No description available.' }}
-          </p>
+            <h4 class="card-title">
+              {{ article.title || 'No Title' }}
+            </h4>
 
-          <span class="collection-badge">
-            <i>📁</i> {{ article.collectionName }}
-          </span>
+            <p class="card-desc">
+              {{ article.description || 'No description available.' }}
+            </p>
+
+            <span class="collection-badge">
+              <i>📁</i> {{ article.collectionName }}
+            </span>
+          </div>
+
+          <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-3">
+            <div class="card-actions d-flex gap-2">
+              <button class="btn-action read w-100" (click)="openArticle(article)" [disabled]="!article.url" title="Read full article">
+                <a [href]="article.url" target="_blank" class="btn btn-action btn-read" [class.disabled]="!article.url">
+                Read Article →
+              </a>
+              </button>
+              <button class="btn-action move" (click)="openMoveModal(article)" title="Move to collection">
+                📂 Move
+              </button>
+              <button class="btn-action remove" (click)="unsave(article.articleId)" title="Remove from saved">
+                🗑 Remove
+              </button>
+            </div>
+          </div>
+
         </div>
-
-        <!-- Actions -->
-        <div class="card-actions">
-          <button class="btn-action read" (click)="openArticle(article.url)">
-            Read Article →
-          </button>
-          <button class="btn-action move" (click)="openMoveModal(article)" title="Move to collection">
-            📂 Move
-          </button>
-          <button class="btn-action remove" (click)="unsave(article.articleId)" title="Remove from saved">
-            🗑 Remove
-          </button>
-        </div>
-
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- ── Move to Collection Modal ───────────────────── -->
-<div class="modal-backdrop" *ngIf="showMoveModal" (click)="closeMoveModal()" (keydown.escape)="closeMoveModal()"
-  tabindex="0" role="dialog" aria-modal="true">
-  <div class="move-modal" (click)="$event.stopPropagation()">
-    <h3>Move to Collection</h3>
-    <p class="modal-subtitle">{{ movingArticle?.title | slice:0:60 }}...</p>
+<div class="modal" *ngIf="showMoveModal" (click)="closeMoveModal()" (keydown.escape)="closeMoveModal()" tabindex="0"
+  role="dialog" aria-modal="true">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h2>Move to Collection</h2>
+    <p class="small mb-3">{{ movingArticle?.title | slice:0:60 }}...</p>
 
-    <!-- Existing collections -->
-    <div class="existing-collections" *ngIf="existingCollections.length > 0">
-      <p class="section-label">Existing collections</p>
-      <button *ngFor="let col of existingCollections" class="col-pill"
-        [ngClass]="{ current: col === movingArticle?.collectionName }" (click)="moveToCollection(col)">
-        📁 {{ col }}
-      </button>
+    <div class="existing-collections text-start mb-3" *ngIf="existingCollections.length > 0">
+      <p class="section-label small font-weight-bold text-muted mb-2">Existing collections</p>
+      <div class="d-flex flex-wrap gap-2">
+        <button *ngFor="let col of existingCollections" class="col-pill"
+          [ngClass]="{ current: col === movingArticle?.collectionName }" (click)="moveToCollection(col)">
+          📁 {{ col }}
+        </button>
+      </div>
     </div>
 
-    <!-- New collection -->
-    <div class="new-collection-input">
-      <p class="section-label">Or create new</p>
-      <div class="input-row">
-        <input type="text" [(ngModel)]="newCollectionName" placeholder="e.g. Weekend Reads" maxlength="40" />
-        <button class="btn-create" [disabled]="!newCollectionName.trim()" (click)="moveToCollection(newCollectionName)">
+    <div class="new-collection-input text-start mb-4">
+      <p class="section-label small font-weight-bold text-muted mb-2">Or create new</p>
+      <div class="input-row d-flex gap-2">
+        <input type="text" class="form-control" [(ngModel)]="newCollectionName" placeholder="e.g. Weekend Reads"
+          maxlength="40" />
+        <button class="btn btn-create" [disabled]="!newCollectionName.trim()"
+          (click)="moveToCollection(newCollectionName)">
           Create & Move
         </button>
       </div>
     </div>
 
-    <button class="btn-cancel" (click)="closeMoveModal()">Cancel</button>
+    <button class="btn btn-secondary w-100" (click)="closeMoveModal()">Cancel</button>
   </div>
 </div>
