@@ -1,15 +1,12 @@
 <!-- Save and Share Buttons -->
 <div class="actions">
-  <!-- <button class="btn btn-outline-secondary" (click)="saveNews()">
-    <i class="fas fa-save"></i> Save
-  </button> -->
   <button class="btn btn-outline-secondary ml-2" (click)="shareNews()">
     <i class="fas fa-share"></i> Share
   </button>
 
-  <button class="btn btn-outline-secondary" (click)="toggleSave()" [disabled]="isSaving"
+  <button class="btn btn-outline-secondary ms-2" (click)="toggleSave()" [disabled]="isSaving"
     [title]="isSaved ? 'Remove from saved' : 'Save article'">
-    <i [class]="isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+    <i [class]="isSaved ? 'fas fa-bookmark me-2' : 'far fa-bookmark me-2'"></i>
     <span *ngIf="!isSaved">Save</span>
     <span *ngIf="isSaved">Saved</span>
   </button>

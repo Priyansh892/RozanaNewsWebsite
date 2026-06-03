@@ -33,7 +33,7 @@ export class AuthService {
           this.loggedIn = true;
           this.currentUserSubject.next(parsed);
         } catch {
-          // corrupt cookie — clear it
+          // corrupt cookie - clear it
           this.cookieService.delete('userDetails', '/');
         }
       }
@@ -44,7 +44,7 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  // No client-side SHA-256 hashing — bcrypt over HTTPS is sufficient and correct.
+  // No client-side SHA-256 hashing - bcrypt over HTTPS is sufficient and correct.
   // Sending a SHA-256 hash as the "password" doesn't improve security because the hash
   // itself becomes the credential. If intercepted, it could be replayed. bcrypt on the
   // server side (over HTTPS) is the correct and complete solution.
@@ -89,14 +89,14 @@ export class AuthService {
       });
   }
 
-  // Called by the interceptor when refresh fails — clears session without making server call
+  // Called by the interceptor when refresh fails - clears session without making server call
   forceLogout(): void {
     this.clearSession();
   }
 
   // Fixed: consistent behavior in both browser and SSR environments.
   // Previously the SSR branch sent plaintext passwords while the browser branch hashed them.
-  // Now both environments send plaintext — password security is handled entirely server-side by bcrypt.
+  // Now both environments send plaintext - password security is handled entirely server-side by bcrypt.
   resetPassword(
     username: string,
     newPassword: string,

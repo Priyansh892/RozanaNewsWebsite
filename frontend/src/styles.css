@@ -1,1 +1,203 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root,
+[data-theme="light"] {
+    --rn-bg: #f8f6f1;
+    --rn-bg-card: #ffffff;
+    --rn-bg-nav: #ffffff;
+    --rn-ink: #1a1a1a;
+    --rn-ink-muted: #6b6b6b;
+    --rn-border: #e8e2d9;
+    --rn-accent: #c9373c;
+    --rn-accent-soft: #fdf2f2;
+    --rn-gold: #f5a623;
+    --rn-shadow: rgba(0, 0, 0, 0.08);
+    --rn-nav-shadow: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+    --rn-bg: #111111;
+    --rn-bg-card: #1e1e1e;
+    --rn-bg-nav: #161616;
+    --rn-ink: #f0ede8;
+    --rn-ink-muted: #a0a0a0;
+    --rn-border: #2a2a2a;
+    --rn-accent: #e84a50;
+    --rn-accent-soft: #2a1515;
+    --rn-gold: #f5a623;
+    --rn-shadow: rgba(0, 0, 0, 0.4);
+    --rn-nav-shadow: rgba(0, 0, 0, 0.3);
+}
+
+body {
+    background-color: var(--rn-bg);
+    color: var(--rn-ink);
+    transition: background-color 0.25s ease, color 0.25s ease;
+    font-family: "Inter", sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+html * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.news-card,
+.card {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+    color: var(--rn-ink) !important;
+}
+
+.card-title {
+    color: var(--rn-ink) !important;
+}
+
+.card-text,
+.text-muted {
+    color: var(--rn-ink-muted) !important;
+}
+
+.card-footer {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+}
+
+.navbar {
+    background: var(--rn-bg-nav) !important;
+    border-bottom: 1px solid var(--rn-border);
+    box-shadow: 0 2px 12px var(--rn-nav-shadow);
+    transition: background 0.25s ease;
+}
+
+.navbar-brand,
+.nav-link {
+    color: var(--rn-ink) !important;
+}
+
+.nav-link:hover {
+    color: var(--rn-accent) !important;
+}
+
+.nav-link.active {
+    color: var(--rn-accent) !important;
+}
+
+.dropdown-menu {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+    z-index: 1000 !important;
+    box-shadow: 0 4px 12px var(--rn-shadow) !important;
+}
+
+.dropdown-item {
+    color: var(--rn-ink) !important;
+}
+
+.dropdown-item:hover {
+    background: var(--rn-bg) !important;
+    color: var(--rn-accent) !important;
+}
+
+.dropdown-item:active,
+.dropdown-item.active {
+    background: var(--rn-bg) !important;
+    color: var(--rn-accent) !important;
+}
+
+.dropdown-divider {
+    border-color: var(--rn-border) !important;
+}
+
+.skeleton-card {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+}
+
+.skeleton-img,
+.skeleton-text,
+.sk-img,
+.sk-line,
+.sk-thumb {
+    background: linear-gradient(90deg,
+            var(--rn-border) 25%,
+            color-mix(in srgb, var(--rn-border) 70%, var(--rn-bg-card)) 50%,
+            var(--rn-border) 75%) !important;
+    background-size: 200% 100% !important;
+    animation: shimmer 1.4s infinite !important;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.modal-content,
+.move-modal,
+.confirm-modal {
+    background: var(--rn-bg-card) !important;
+    color: var(--rn-ink) !important;
+    border-color: var(--rn-border) !important;
+}
+
+.glass-pagination {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+    color: var(--rn-ink) !important;
+}
+
+.page-btn {
+    background: var(--rn-bg-card) !important;
+    border-color: var(--rn-border) !important;
+    color: var(--rn-ink) !important;
+}
+
+.dark-toggle {
+    background: none;
+    border: 1px solid var(--rn-border);
+    color: var(--rn-ink);
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.dark-toggle:hover {
+    border-color: var(--rn-accent);
+    color: var(--rn-accent);
+}
+
+/* Ensure all form elements adapt to theme */
+input, textarea, select, .form-control {
+    background-color: var(--rn-bg-card) !important;
+    color: var(--rn-ink) !important;
+    border-color: var(--rn-border) !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--rn-ink-muted) !important;
+}
+
+/* Button theming */
+.btn-primary {
+    background-color: var(--rn-accent) !important;
+    border-color: var(--rn-accent) !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--rn-accent) !important;
+    opacity: 0.9;
+}

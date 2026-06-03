@@ -14,7 +14,7 @@ async function getCache(key) {
     if (!data) return null;
     return JSON.parse(data);
   } catch (err) {
-    // Cache read failure should never crash the app — just fetch from API
+    // Cache read failure should never crash the app - just fetch from API
     console.error("[Cache] GET error:", err.message);
     return null;
   }
@@ -25,7 +25,7 @@ async function setCache(key, data, ttl = TTL.NEWS) {
   try {
     await redis.set(key, JSON.stringify(data), "EX", ttl);
   } catch (err) {
-    // Cache write failure should never crash the app — data still returned to user
+    // Cache write failure should never crash the app - data still returned to user
     console.error("[Cache] SET error:", err.message);
   }
 }
@@ -51,8 +51,8 @@ async function withCache(key, fetchFn, ttl = TTL.NEWS) {
     return { ...cached, fromCache: true };
   }
 
-  // 2. Cache miss — fetch from source
-  console.log(`[Cache] MISS → ${key} — fetching from News API`);
+  // 2. Cache miss - fetch from source
+  console.log(`[Cache] MISS → ${key} - fetching from News API`);
   const freshData = await fetchFn();
 
   // 3. Only cache successful responses

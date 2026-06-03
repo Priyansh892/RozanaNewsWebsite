@@ -34,7 +34,7 @@
 
       </form>
 
-      <!-- Single unified alert — removed the duplicate error display that was
+      <!-- Single unified alert - removed the duplicate error display that was
            showing errorMessage twice (once above and once inside the alert div) -->
       <div *ngIf="success || errorMessage" [ngClass]="alertClass" role="alert">
         <span *ngIf="success">Login successful! Redirecting...</span>

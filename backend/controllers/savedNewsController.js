@@ -31,7 +31,7 @@ exports.saveArticle = async (req, res) => {
       saved,
     });
   } catch (error) {
-    // Duplicate key — user already saved this article
+    // Duplicate key - user already saved this article
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,

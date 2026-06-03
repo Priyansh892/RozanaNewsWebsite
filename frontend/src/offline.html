@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RozanaNews - You're Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'DM Sans', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 420px;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: #2a2a2a;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        /* Inline RozanaNews R icon */
+        .icon svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .accent {
+            color: #f5a623;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #c9373c;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover {
+            opacity: 0.88;
+        }
+
+        .tip {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="6" y1="14" x2="42" y2="14" stroke="#f5a623" stroke-width="3.5" stroke-linecap="round" />
+                <line x1="12" y1="14" x2="12" y2="38" stroke="#f5a623" stroke-width="3.5" stroke-linecap="round" />
+                <path d="M12 14 Q34 15 34 24 Q34 33 12 34" stroke="#f5a623" stroke-width="3.5" stroke-linecap="round"
+                    fill="none" />
+                <line x1="12" y1="34" x2="36" y2="40" stroke="#c9373c" stroke-width="3.5" stroke-linecap="round" />
+                <circle cx="39" cy="41" r="3" fill="#f5a623" />
+            </svg>
+        </div>
+
+        <h1>You're <span class="accent">offline</span></h1>
+        <p>
+            RozanaNews needs an internet connection to fetch the latest headlines.
+            Check your connection and try again.
+        </p>
+
+        <button class="btn" onclick="window.location.reload()">
+            Try Again
+        </button>
+
+        <p class="tip">
+            Your saved articles are still accessible once you're back online.
+        </p>
+    </div>
+</body>
+
+</html>

@@ -18,7 +18,7 @@ export class NewsService {
   }
 
   getCountryNews(iso: string, page: number, max: number): Observable<any> {
-    // Removed redundant ternary — iso is always passed, and an empty string
+    // Removed redundant ternary - iso is always passed, and an empty string
     // would produce a broken URL (/country/) anyway. Callers should validate iso.
     return this.http.get(
       `${this.baseUrl}/country/${iso}?page=${page}&pageSize=${max}`,

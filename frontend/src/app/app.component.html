@@ -47,6 +47,14 @@
           </ul>
         </li>
 
+        <!-- Dark mode toggle -->
+        <li class="nav-item d-flex align-items-center me-1">
+          <button class="dark-toggle" (click)="darkModeService.toggle()">
+            <span *ngIf="!(darkModeService.isDark$ | async)">🌙 Dark</span>
+            <span *ngIf="darkModeService.isDark$ | async">☀️ Light</span>
+          </button>
+        </li>
+
         <!-- Auth: not logged in -->
         <li class="nav-item" *ngIf="!isLoggedIn()">
           <a class="nav-link" routerLink="/login" routerLinkActive="active">LOGIN</a>
@@ -55,10 +63,11 @@
           <a class="nav-link" routerLink="/register" routerLinkActive="active">REGISTER</a>
         </li>
 
-        <!-- Auth: logged in — user dropdown -->
+        <!-- Auth: logged in - user dropdown -->
         <li class="nav-item dropdown" *ngIf="isLoggedIn()">
           <a class="nav-link dropdown-toggle user-menu" id="userDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
+            <span class="user-avatar">{{ getUsername().charAt(0).toUpperCase() }}</span>
             {{ getUsername() }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end user-dropdown shadow" aria-labelledby="userDropdown">
@@ -90,10 +99,14 @@
 
           </ul>
         </li>
+
       </ul>
     </div>
   </div>
 </nav>
+
+<!-- Global Toast Notifications -->
+<app-toast></app-toast>
 
 <main style="margin-top: 120px;">
   <router-outlet></router-outlet>

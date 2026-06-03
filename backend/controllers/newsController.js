@@ -45,7 +45,7 @@ function normalizeArticle(article) {
     url: article.url || "",
     urlToImage: article.image || "", // GNews uses 'image' not 'urlToImage'
     publishedAt: article.publishedAt || "",
-    author: article.source?.name || "", // GNews has no author field — use source name
+    author: article.source?.name || "", // GNews has no author field - use source name
     content: article.content || "",
     source: {
       id: article.source?.id || null,
@@ -58,7 +58,7 @@ function normalizeArticle(article) {
 
 // GET /api/news/all-news
 // Query params: ?q=india&page=1&pageSize=10
-// GNews max per request is 10 on free tier — pageSize capped accordingly
+// GNews max per request is 10 on free tier - pageSize capped accordingly
 exports.getAllNews = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = Math.min(parseInt(req.query.pageSize) || 10, 10); // GNews free tier max = 10

@@ -33,7 +33,7 @@ export class AllNewsComponent implements OnInit {
   showShareModal = false;
   socialLinks: any = {};
 
-  // Category for this feed — passed to app-shared-news
+  // Category for this feed - passed to app-shared-news
   readonly category = 'general';
 
   private newsService = inject(NewsService);
@@ -41,7 +41,7 @@ export class AllNewsComponent implements OnInit {
   private savedNewsService = inject(SavedNewsService);
 
   ngOnInit(): void {
-    // Load all saved IDs once — cards read from in-memory Set, no per-card API calls
+    // Load all saved IDs once - cards read from in-memory Set, no per-card API calls
     if (this.savedNewsService.isLoaded) {
       this.fetchNews();
     } else {
@@ -127,7 +127,7 @@ export class AllNewsComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
-  // Hook for save events — Week 8 will add toast notification here
+  // Hook for save events - Week 8 will add toast notification here
   onSaveClicked(event: { article: any; saved: boolean }): void {}
 
   handleImageError(event: any): void {

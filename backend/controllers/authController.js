@@ -218,7 +218,7 @@ exports.logout = async (req, res) => {
           await user.save();
         }
       } catch (e) {
-        // Ignore invalid/expired token during logout — still clear cookies
+        // Ignore invalid/expired token during logout - still clear cookies
       }
     }
 

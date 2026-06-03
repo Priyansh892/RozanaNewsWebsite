@@ -10,7 +10,7 @@ export class HistoryService {
   private http = inject(HttpClient);
 
   // Called silently when user clicks an article card
-  // Uses fire-and-forget pattern — we don't block the article open on this
+  // Uses fire-and-forget pattern - we don't block the article open on this
   logRead(article: any, category: string): void {
     this.http
       .post(
@@ -22,7 +22,7 @@ export class HistoryService {
         error: (err) =>
           console.error('[HistoryService] Failed to log read:', err.message),
       });
-    // No next handler — fire and forget, user should never wait for this
+    // No next handler - fire and forget, user should never wait for this
   }
 
   // Get paginated reading history

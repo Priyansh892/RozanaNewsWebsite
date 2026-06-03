@@ -8,7 +8,7 @@
 
 .news-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 12px 24px var(--rn-shadow) !important;
 }
 
 .img-wrapper {
@@ -29,7 +29,7 @@
   right: 10px;
   font-weight: 500;
   backdrop-filter: blur(4px);
-  background: rgba(13, 110, 253, 0.8) !important;
+  background: var(--rn-accent) !important;
 }
 
 /* CSS Line Clamping - Crucial for Grid Alignment */
@@ -41,6 +41,7 @@
   height: 3rem;
   font-size: 1.1rem;
   font-weight: 700;
+  color: var(--rn-ink) !important;
 }
 
 .card-text {
@@ -50,11 +51,12 @@
   overflow: hidden;
   height: 4.2rem;
   font-size: 0.9rem;
+  color: var(--rn-ink-muted) !important;
 }
 
 .btn-read {
   text-decoration: none;
-  color: #0d6efd;
+  color: var(--rn-accent);
   font-weight: 600;
   font-size: 0.9rem;
 }
@@ -75,33 +77,35 @@
 }
 
 .glass-pagination {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--rn-bg-card);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--rn-border);
   border-radius: 50px;
   padding: 8px 20px;
   display: flex;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px var(--rn-shadow);
 }
 
 .page-btn {
-  border: none;
+  border: 1px solid var(--rn-border);
   background: transparent;
-  color: #0d6efd;
+  color: var(--rn-accent);
   font-weight: 600;
   padding: 5px 15px;
   border-radius: 20px;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .page-btn:disabled {
-  color: #ccc;
+  color: var(--rn-ink-muted);
+  opacity: 0.5;
 }
 
 .page-btn:not(:disabled):hover {
-  background: rgba(13, 110, 253, 0.1);
+  background: var(--rn-accent);
+  color: white;
 }
 
 /* Skeleton Animation */

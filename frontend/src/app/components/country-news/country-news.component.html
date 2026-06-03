@@ -50,7 +50,7 @@
             {{ article.author || 'Staff' }}
           </small>
           <!-- [category] passes feed context for save + history -->
-          <!-- (saveClicked) optional handler — can show toast later -->
+          <!-- (saveClicked) optional handler - can show toast later -->
           <app-shared-news [article]="article" [category]="category" (shareClicked)="openShareModal($event)"
             (saveClicked)="onSaveClicked($event)">
           </app-shared-news>

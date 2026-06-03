@@ -3,7 +3,7 @@ const { generateArticleId } = require("../utils/articleUtils");
 
 // POST /api/history/log
 // Auto-called when user clicks an article card on the frontend.
-// Logs silently — does not block the user from opening the article.
+// Logs silently - does not block the user from opening the article.
 // Prevents duplicate logs within 1 hour (same user + same article).
 exports.logRead = async (req, res) => {
   try {

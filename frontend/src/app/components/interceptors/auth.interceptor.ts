@@ -36,12 +36,12 @@ export class AuthInterceptor implements HttpInterceptor {
           const errorMsg = error.error?.error || '';
 
           if (errorMsg === 'Access token expired') {
-            // ✅ Token expired — try to refresh silently then retry
+            // ✅ Token expired - try to refresh silently then retry
             return this.handle401WithRefresh(req, next);
           }
 
           // ✅ Any other 401 (missing token, invalid token, user not found)
-          // means the session is unrecoverable — force logout immediately
+          // means the session is unrecoverable - force logout immediately
           // Previously these were just re-thrown and nothing happened
           this.forceLogoutAndRedirect();
           return throwError(() => error);
@@ -69,14 +69,14 @@ export class AuthInterceptor implements HttpInterceptor {
         catchError((refreshError) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(false);
-          // ✅ Refresh also failed — session fully expired, force logout
+          // ✅ Refresh also failed - session fully expired, force logout
           this.forceLogoutAndRedirect();
           return throwError(() => refreshError);
         }),
       );
     }
 
-    // Another request already triggered refresh — wait for result
+    // Another request already triggered refresh - wait for result
     return this.refreshTokenSubject.pipe(
       filter((result) => result !== null),
       take(1),
@@ -84,7 +84,7 @@ export class AuthInterceptor implements HttpInterceptor {
         if (success) {
           return next.handle(req);
         }
-        // ✅ Refresh completed but failed — redirect
+        // ✅ Refresh completed but failed - redirect
         this.forceLogoutAndRedirect();
         return throwError(() => new Error('Token refresh failed'));
       }),

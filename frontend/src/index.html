@@ -1,15 +1,65 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>RozanaNews</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8" />
+  <title>RozanaNews - Your Daily. Your Way.</title>
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!--PWA-->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#c9373c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!--Apple PWA-->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="RozanaNews" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png" />
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+
+  <!-- SEO / Social -->
+  <meta name="description" content="RozanaNews - India's personalized daily news platform. Stay informed with top headlines, country news, and your personalized feed." />
+  <meta name="keywords" content="news, india, rozana, daily news, top headlines, breaking news" />
+  <meta property="og:title" content="RozanaNews - Your Daily. Your Way." />
+  <meta property="og:description" content="India's personalized daily news platform." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="RozanaNews" />
+
 </head>
 <body>
   <app-root>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </app-root>
+
+  <!--Service Worker Registration-->
+  <script>
+    // Only register service worker in production
+    // In development it causes caching issues and reload loops
+    if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/ngsw-worker.js')
+          .then((reg) => console.log('[SW] Registered:', reg.scope))
+          .catch((err) => console.warn('[SW] Registration failed:', err));
+      });
+    } else if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      // Unregister any existing service workers in development
+      // This cleans up SWs left over from previous sessions
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((reg) => {
+            reg.unregister();
+            console.log('[SW] Unregistered in dev mode');
+          });
+        });
+      }
+    }
+  </script>
 </body>
 </html>

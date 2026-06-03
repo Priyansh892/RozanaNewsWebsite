@@ -27,7 +27,7 @@ export class TopHeadlinesComponent implements OnInit {
   showShareModal = false;
   socialLinks: any = {};
 
-  // Category from route param — also used as feed context for save + history
+  // Category from route param - also used as feed context for save + history
   // e.g. /top-headlines/sports → category = 'sports'
   category: string = 'general';
 
@@ -131,7 +131,7 @@ export class TopHeadlinesComponent implements OnInit {
     document.body.style.overflow = '';
   }
 
-  // Hook for save events — Week 8 will add toast notification here
+  // Hook for save events - Week 8 will add toast notification here
   onSaveClicked(event: { article: any; saved: boolean }): void {}
 
   trackByUrl(index: number, item: any): string {
