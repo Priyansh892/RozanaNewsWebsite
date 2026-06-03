@@ -69,7 +69,7 @@
 
       </form>
 
-      <!-- Single unified alert block — success or error, never both -->
+      <!-- Single unified alert block - success or error, never both -->
       <div *ngIf="registrationSuccess || registrationError" [ngClass]="alertClass" role="alert">
         <span *ngIf="registrationSuccess">Registration successful! Redirecting...</span>
         <span *ngIf="registrationError && !registrationSuccess">{{ registrationError }}</span>

@@ -35,9 +35,9 @@ const {
   newsLimiter,
   generalLimiter,
 } = require("./middleware/rateLimiter");
-app.use("/api/auth", authLimiter); // strict  — 10 req / 15min (brute force protection)
-app.use("/api/news", newsLimiter); // moderate — 100 req / 15min (API quota protection)
-app.use(generalLimiter); // fallback — 200 req / 15min (everything else)
+app.use("/api/auth", authLimiter); // strict  - 10 req / 15min (brute force protection)
+app.use("/api/news", newsLimiter); // moderate - 100 req / 15min (API quota protection)
+app.use(generalLimiter); // fallback - 200 req / 15min (everything else)
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/news", require("./routes/newsRoutes"));

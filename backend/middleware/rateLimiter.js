@@ -1,7 +1,7 @@
 const rateLimit = require("express-rate-limit");
 
 // ─── Auth Limiter ─────────────────────────────────────────────────────────────
-// Strict — prevents brute force attacks on login/register
+// Strict - prevents brute force attacks on login/register
 // 10 requests per 15 minutes per IP
 exports.authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -15,7 +15,7 @@ exports.authLimiter = rateLimit({
 });
 
 // ─── News Limiter ─────────────────────────────────────────────────────────────
-// Moderate — protects News API quota and prevents scraping
+// Moderate - protects News API quota and prevents scraping
 // 100 requests per 15 minutes per IP
 exports.newsLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

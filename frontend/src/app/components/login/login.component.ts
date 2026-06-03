@@ -9,7 +9,7 @@ import { NgClass, NgIf } from '@angular/common';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  // Removed `providers: [AuthService]` — it was creating a component-scoped instance
+  // Removed `providers: [AuthService]` - it was creating a component-scoped instance
   // separate from the root instance, causing loggedIn state and BehaviorSubject to be
   // out of sync with the rest of the app. AuthService is providedIn: 'root' and should
   // be injected from the root injector everywhere.

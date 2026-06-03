@@ -23,7 +23,7 @@ export class ForgotPasswordComponent {
   showLoginPrompt = false; // shown when password is same as current
   newsLoginImage = 'assets/newsLogin.png';
 
-  // All injected via inject() consistently — no mixed constructor/inject styles
+  // All injected via inject() consistently - no mixed constructor/inject styles
   private authService = inject(AuthService);
   private router = inject(Router);
 

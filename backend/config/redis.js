@@ -4,7 +4,7 @@ require("dotenv").config();
 // Connect to Redis using URL from environment variables
 
 const redis = new Redis(process.env.REDIS_URL, {
-  // Upstash requires TLS — ioredis handles this automatically when URL starts with rediss://
+  // Upstash requires TLS - ioredis handles this automatically when URL starts with rediss://
   tls: {
     rejectUnauthorized: false,
   },
@@ -61,10 +61,10 @@ async function isRedisHealthy() {
 // TTL values for different cache types (in seconds)
 
 const TTL = {
-  NEWS: parseInt(process.env.REDIS_TTL) || 900, // 15 minutes — news feeds
-  BREAKING: 300, // 5  minutes — breaking news
-  USER_SESSION: 3600, // 1  hour    — session flags
-  RATE_LIMIT: 900, // 15 minutes — rate limit windows
+  NEWS: parseInt(process.env.REDIS_TTL) || 900, // 15 minutes - news feeds
+  BREAKING: 300, // 5  minutes - breaking news
+  USER_SESSION: 3600, // 1  hour    - session flags
+  RATE_LIMIT: 900, // 15 minutes - rate limit windows
 };
 
 module.exports = { redis, isRedisHealthy, TTL };

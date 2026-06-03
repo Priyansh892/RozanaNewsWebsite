@@ -30,7 +30,7 @@ export class CountryNewsComponent implements OnInit {
   showShareModal = false;
   socialLinks: any = {};
 
-  // Category for this component — used by shared-news for save + history
+  // Category for this component - used by shared-news for save + history
   readonly category = 'country';
 
   private route = inject(ActivatedRoute);
@@ -151,7 +151,7 @@ export class CountryNewsComponent implements OnInit {
   }
 
   // Called when user saves/unsaves from shared-news component
-  // Currently just a hook — Week 8 will add a toast notification here
+  // Currently just a hook - Week 8 will add a toast notification here
   onSaveClicked(event: { article: any; saved: boolean }): void {
     // e.g: show toast "Article saved to Reading List" / "Article removed"
     // Toast service will be wired here in Week 8

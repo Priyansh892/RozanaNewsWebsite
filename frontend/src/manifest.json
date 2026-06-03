@@ -1,0 +1,56 @@
+{
+  "name": "RozanaNews - Your Daily. Your Way.",
+  "short_name": "RozanaNews",
+  "description": "India's personalized daily news platform. Stay informed, stay ahead.",
+  "start_url": "/all-news",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#c9373c",
+  "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "categories": ["news", "magazines"],
+  "icons": [
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "assets/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Top Headlines",
+      "short_name": "Headlines",
+      "description": "Latest top headlines",
+      "url": "/top-headlines/general",
+      "icons": [{ "src": "assets/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "India News",
+      "short_name": "India",
+      "description": "Latest news from India",
+      "url": "/country/in",
+      "icons": [{ "src": "assets/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Saved Articles",
+      "short_name": "Saved",
+      "description": "Your saved reading list",
+      "url": "/saved-news",
+      "icons": [{ "src": "assets/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

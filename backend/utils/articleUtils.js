@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
 // Article ID
-// NewsAPI doesn't provide a unique ID per article — only a URL.
+// NewsAPI doesn't provide a unique ID per article - only a URL.
 // We generate a stable md5 hash of the URL to use as a consistent identifier
 // across saved articles, reading history, reactions, and comments.
 

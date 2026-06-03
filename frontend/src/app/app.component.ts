@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from './components/services/auth.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { ToastComponent } from './components/toast/toast.component';
+import { DarkModeService } from './components/services/dark-mode.service';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { countries } from './components/countries';
@@ -9,7 +11,14 @@ import { countries } from './components/countries';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterModule, CommonModule, FormsModule],
+  imports: [
+    RouterOutlet,
+    RouterModule,
+    CommonModule,
+    FormsModule,
+    ToastComponent,
+    AsyncPipe,
+  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
@@ -35,6 +44,7 @@ export class AppComponent implements OnInit {
 
   private authService = inject(AuthService);
   private router = inject(Router);
+  darkModeService = inject(DarkModeService);
 
   ngOnInit(): void {}
 

@@ -11,7 +11,7 @@ export class SavedNewsService {
 
   // ─── In-memory Set of saved articleIds ───────────────────────────────────
   // Loaded once on app start / page load.
-  // Each card checks this Set locally — no per-card API calls needed.
+  // Each card checks this Set locally - no per-card API calls needed.
   private savedIds = new Set<string>();
   private loaded = false;
   private savedIdsSubject = new BehaviorSubject<Set<string>>(new Set());
@@ -37,7 +37,7 @@ export class SavedNewsService {
     return this.savedIds.has(articleId);
   }
 
-  // ─── Save article — update Set optimistically ─────────────────────────────
+  // ─── Save article - update Set optimistically ─────────────────────────────
   saveArticle(
     article: any,
     category: string,
@@ -59,7 +59,7 @@ export class SavedNewsService {
       );
   }
 
-  // ─── Unsave article — remove from Set optimistically ─────────────────────
+  // ─── Unsave article - remove from Set optimistically ─────────────────────
   unsaveArticle(articleId: string): Observable<any> {
     return this.http
       .delete<any>(`${this.baseUrl}/${articleId}`, { withCredentials: true })
