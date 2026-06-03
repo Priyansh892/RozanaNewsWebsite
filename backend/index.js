@@ -41,8 +41,10 @@ app.use(generalLimiter); // fallback — 200 req / 15min (everything else)
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/news", require("./routes/newsRoutes"));
+app.use("/api/saved", require("./routes/savedNewsRoutes"));
+app.use("/api/history", require("./routes/historyRoutes"));
 
-// ─── Health Check to verify all services are running
+// Health Check to verify all services are running
 const mongoose = require("mongoose");
 const { isRedisHealthy } = require("./config/redis");
 

@@ -23,11 +23,9 @@
 <!-- NEWS CARDS -->
 <div class="container my-5" *ngIf="!isLoading">
   <div class="row" *ngIf="data.length > 0; else noData">
-
-    <div class="col-md-4 mb-4" *ngFor="let article of data">
+    <div class="col-md-4 mb-4" *ngFor="let article of data; trackBy: trackByUrl">
       <div class="news-card h-100">
 
-        <!-- IMAGE -->
         <div class="img-wrapper">
           <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
             [alt]="article.title" />
@@ -36,17 +34,12 @@
           </span>
         </div>
 
-        <!-- BODY -->
         <div class="p-3">
-          <h5 class="card-title">
-            {{ article.title || 'No Title Available' }}
-          </h5>
-
-          <p class="card-text">
-            {{ article.description || 'No description available.' }}
-          </p>
-
-          <a [href]="article.url" target="_blank" class="btn btn-read" [class.disabled]="!article.url">
+          <h5 class="card-title">{{ article.title || 'No Title Available' }}</h5>
+          <p class="card-text">{{ article.description || 'No description available.' }}</p>
+          <!-- ✅ (click) logs history silently -->
+          <a [href]="article.url" target="_blank" class="btn btn-read" [class.disabled]="!article.url"
+            (click)="onReadArticle(article)">
             Read Full Story
           </a>
         </div>
@@ -56,13 +49,13 @@
             {{ article.publishedAt | date:'mediumDate' }} •
             {{ article.author || 'Staff' }}
           </small>
-          <!-- Share and Save Buttons -->
-          <app-shared-news [article]="article" (shareClicked)="openShareModal($event)">
+          <!-- ✅ [category] passes route category (sports/tech/etc) for save + history -->
+          <app-shared-news [article]="article" [category]="category" (shareClicked)="openShareModal($event)"
+            (saveClicked)="onSaveClicked($event)">
           </app-shared-news>
         </div>
       </div>
     </div>
-
   </div>
 
   <ng-template #noData>
@@ -75,62 +68,38 @@
 <!-- PAGINATION -->
 <div *ngIf="!isLoading && totalResults > 0" class="fixed-pagination-container">
   <div class="glass-pagination">
-
-    <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">
-      ← Prev
-    </button>
-
+    <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">← Prev</button>
     <span>Page <strong>{{ page }}</strong> of {{ totalPages }}</span>
-
-    <button class="page-btn" (click)="handleNext()" [disabled]="page >= totalPages">
-      Next →
-    </button>
-
+    <button class="page-btn" (click)="handleNext()" [disabled]="page >= totalPages">Next →</button>
   </div>
 </div>
 
 <!-- GLOBAL SHARE MODAL -->
-<div class="modal" *ngIf="showShareModal" (click)="closeModal()">
+<div class="modal" *ngIf="showShareModal" (click)="closeModal()" (keydown.escape)="closeModal()" tabindex="0"
+  role="dialog" aria-modal="true">
   <div class="modal-content" (click)="$event.stopPropagation()">
-
     <h2>Share this news</h2>
     <div class="shared-news-preview">
-
-      <img [src]="selectedArticle?.urlToImage || 'assets/googleNews.png'" alt="news image">
-
-      <h5>
-        {{ selectedArticle?.title }}
-      </h5>
-
+      <img [src]="selectedArticle?.urlToImage || 'assets/googleNews.png'" alt="news image" />
+      <h5>{{ selectedArticle?.title }}</h5>
     </div>
-
     <div class="social-buttons">
-
-      <button class="facebook" *ngIf="socialLinks.facebook" (click)="openSocialLink(socialLinks.facebook)">
-        <i class="fab fa-facebook-f"></i> Facebook
-      </button>
-
-      <button class="twitter" *ngIf="socialLinks.twitter" (click)="openSocialLink(socialLinks.twitter)">
-        <i class="fab fa-x-twitter"></i> Twitter
-      </button>
-
-      <button class="linkedin" *ngIf="socialLinks.linkedin" (click)="openSocialLink(socialLinks.linkedin)">
-        <i class="fab fa-linkedin-in"></i> LinkedIn
-      </button>
-
       <button class="whatsapp" *ngIf="socialLinks.whatsapp" (click)="openSocialLink(socialLinks.whatsapp)">
         <i class="fab fa-whatsapp"></i> WhatsApp
       </button>
-
+      <button class="twitter" *ngIf="socialLinks.twitter" (click)="openSocialLink(socialLinks.twitter)">
+        <i class="fab fa-x-twitter"></i> Twitter
+      </button>
+      <button class="facebook" *ngIf="socialLinks.facebook" (click)="openSocialLink(socialLinks.facebook)">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </button>
+      <button class="linkedin" *ngIf="socialLinks.linkedin" (click)="openSocialLink(socialLinks.linkedin)">
+        <i class="fab fa-linkedin-in"></i> LinkedIn
+      </button>
       <button class="email" *ngIf="socialLinks.email" (click)="openSocialLink(socialLinks.email)">
         <i class="fas fa-envelope"></i> Email
       </button>
-
     </div>
-
-    <button class="btn btn-danger" (click)="closeModal()">
-      Close
-    </button>
-
+    <button class="btn btn-danger" (click)="closeModal()">✕ Close</button>
   </div>
 </div>
