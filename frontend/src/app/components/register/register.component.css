@@ -1,26 +1,28 @@
-/* Center the container box */
 .register-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; /* Adjust height to center vertically */
+  min-height: 80vh;
+  background: var(--rn-bg);
+  padding: 1rem;
 }
 
 .register-box {
   display: flex;
-  flex-direction: row; /* Flexbox for layout */
-  width: 70%; /* Set a responsive width */
-  max-width: 90%; /* Limit maximum width */
-  background-color: #ffffff;
+  flex-direction: row;
+  width: 70%;
+  max-width: 900px;
+  background: var(--rn-bg-card);
   border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Deeper shadow for emphasis */
+  box-shadow: 0 10px 20px var(--rn-shadow);
   overflow-y: auto;
-  max-height: 98vh;
+  max-height: 85vh;
+  border: 1px solid var(--rn-border);
 }
 
 .register-image,
 .register-form {
-  flex: 2; /* Equal width for image and form */
+  flex: 2;
   padding: 40px;
 }
 
@@ -28,134 +30,170 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #007bff; /* Background color for image section */
-  transition: flex-grow 0.3s ease;
-  flex-grow: calc();
+  background-color: var(--rn-accent);
+  border-radius: 15px 0 0 15px;
 }
 
 .register-image img {
   width: 100%;
   height: auto;
   border-radius: 10px;
-  object-fit: cover; /* Ensures the image covers the entire space */
-  transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 h2 {
   text-align: center;
-  font-size: 2rem; /* Larger font for heading */
-  color: #333; /* Darker color for heading */
+  font-size: 2rem;
+  color: var(--rn-accent-soft);
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
   margin-bottom: 1%;
   font-weight: bold;
-  color: #555; /* Softer color for labels */
+  color: var(--rn-ink-muted);
 }
 
 .form-group {
-  position: relative; 
-  margin-bottom: 4%; /* Space between form groups */
+  position: relative;
+  margin-bottom: 4%;
 }
 
 input {
   width: 100%;
   padding: 3%;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rn-border);
   border-radius: 5px;
+  background: var(--rn-bg-card);
+  color: var(--rn-ink);
   transition: border-color 0.3s, box-shadow 0.3s;
-  box-sizing: border-box; /* Include padding in width calculation */
+  box-sizing: border-box;
 }
 
-/* Error message styling */
+input::placeholder {
+  color: var(--rn-ink-muted);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--rn-accent);
+  box-shadow: 0 0 0 3px rgba(201, 55, 60, 0.15);
+}
+
 .error-message {
   position: absolute;
-  top: 100%; /* Position directly below the input */
+  top: 100%;
   left: 0;
   right: 0;
-  padding: 10px;
+  padding: 8px;
   color: #dc3545;
   font-size: 0.75rem;
-  background-color: rgba(255, 0, 0, 0.1);
+  background: rgba(220, 53, 69, 0.08);
   border-radius: 5px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   pointer-events: none;
-  z-index: 1; /* Ensure the error message is below the icon and input */
+  z-index: 1;
 }
 
-/* Submit button styling */
-.register-form button {
-  width: 100%;
-  padding: 15px;
-  background-color: #007bff;
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.register-form button:hover {
-  background-color: #0056b3;
-}
-
-/* Validation Error Styling */
-.is-invalid {
-  border-color: #dc3545; /* Red border for invalid input */
-  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5); /* Slight red shadow */
-}
-
-/* Make sure the form doesn't expand when the error message appears */
+.field-error,
 .invalid-feedback {
   margin-top: 1%;
-  color: #dc3545; /* Red text for error message */
-}
-.sign-in-link {
-  margin-top: 20px; /* Add spacing above the link */
-  text-align: center; /* Center the text */
-  cursor: pointer;
+  color: #dc3545;
+  font-size: 0.82rem;
 }
 
-.sign-in-link p {
-  margin: 0; /* Remove default margins */
-  font-size: 1rem; /* Adjust font size */
-  color: #333; /* Dark color for text */
-}
-
-.sign-in-link a {
-  color: #007bff; /* Link color */
-  text-decoration: none; /* Remove underline */
-  font-weight: bold; /* Make the link bold */
-}
-
-.sign-in-link a:hover {
-  text-decoration: underline; /* Add underline on hover */
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .register-box {
-    flex-direction: column; /* Stack image and form on smaller screens */
-    width: 90%;
-  }
-
-  .register-image,
-  .register-form {
-    padding: 20px;
-  }
-}
-
-/* Override Bootstrap's invalid input styling */
-input.ng-invalid.ng-touched {
+input.ng-invalid.ng-touched,
+.input-error {
   border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
 }
 
 input.ng-valid.ng-touched {
   border-color: #28a745;
 }
 
+.register-form button[type="submit"] {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--rn-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.register-form button[type="submit"]:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.register-form button[type="submit"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.alert {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+
+.alert-success {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.alert-danger {
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.sign-in-link {
+  margin-top: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.sign-in-link p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--rn-ink-muted);
+}
+
+.sign-in-link a {
+  color: var(--rn-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.sign-in-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .register-box {
+    flex-direction: column;
+    width: 95%;
+    max-height: none;
+  }
+
+  .register-image {
+    border-radius: 15px 15px 0 0;
+    padding: 20px;
+    max-height: 180px;
+  }
+
+  .register-form {
+    padding: 24px 20px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+}

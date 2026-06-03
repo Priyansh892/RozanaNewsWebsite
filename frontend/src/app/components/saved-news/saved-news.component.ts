@@ -3,6 +3,7 @@ import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SavedNewsService } from '../services/saved-news.service';
 import { Router } from '@angular/router';
+import { HistoryService } from '../services/history.service';
 
 @Component({
   selector: 'app-saved-news',
@@ -26,7 +27,9 @@ export class SavedNewsComponent implements OnInit {
   existingCollections: string[] = [];
 
   private savedNewsService = inject(SavedNewsService);
+  private historyService = inject(HistoryService);
   private router = inject(Router);
+  readonly category = 'general';
 
   ngOnInit(): void {
     this.loadCollections();
@@ -81,8 +84,8 @@ export class SavedNewsComponent implements OnInit {
     });
   }
 
-  openArticle(url: string): void {
-    window.open(url, '_blank');
+  openArticle(article: any): void {
+    this.historyService.logRead(article, this.category);
   }
 
   openMoveModal(article: any): void {

@@ -29,7 +29,7 @@
   right: 10px;
   font-weight: 500;
   backdrop-filter: blur(4px);
-  background: rgba(13, 110, 253, 0.8) !important;
+  background: var(--rn-accent) !important;
 }
 
 /* CSS Line Clamping - Crucial for Grid Alignment */

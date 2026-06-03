@@ -30,7 +30,6 @@
   font-weight: 500;
   backdrop-filter: blur(4px);
   background: var(--rn-accent) !important;
-  color: white;
 }
 
 /* --- Line Clamping --- */
