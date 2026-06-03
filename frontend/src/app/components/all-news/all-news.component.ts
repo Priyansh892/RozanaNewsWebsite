@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { NewsService } from '../services/news.service';
+import { HistoryService } from '../services/history.service';
+import { SavedNewsService } from '../services/saved-news.service';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { SharedNewsComponent } from '../shared-news/shared-news.component';
+
 @Component({
   selector: 'app-all-news',
   standalone: true,
@@ -21,22 +24,39 @@ import { SharedNewsComponent } from '../shared-news/shared-news.component';
 export class AllNewsComponent implements OnInit {
   data: any[] = [];
   page = 1;
-  max = 12;
+  max = 10;
   totalResults = 0;
   isLoading = true;
   error: string | null = null;
   totalPages = 1;
   selectedArticle: any;
+  showShareModal = false;
+  socialLinks: any = {};
 
-  constructor(private newsService: NewsService) {}
+  // Category for this feed — passed to app-shared-news
+  readonly category = 'general';
+
+  private newsService = inject(NewsService);
+  private historyService = inject(HistoryService);
+  private savedNewsService = inject(SavedNewsService);
 
   ngOnInit(): void {
-    this.fetchNews();
+    // Load all saved IDs once — cards read from in-memory Set, no per-card API calls
+    if (this.savedNewsService.isLoaded) {
+      this.fetchNews();
+    } else {
+      this.savedNewsService
+        .loadSavedIds()
+        .subscribe({
+          next: () => this.fetchNews(),
+          error: () => this.fetchNews(),
+        });
+    }
   }
 
   fetchNews(): void {
     this.isLoading = true;
-    this.error = null; // Reset error on retry
+    this.error = null;
 
     this.newsService.getAllNews(this.page, this.max).subscribe({
       next: (response) => {
@@ -81,31 +101,21 @@ export class AllNewsComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  handleImageError(event: any): void {
-    event.target.src = 'assets/googleNews.png';
+  // Logs reading history silently when user clicks "Read Full Story"
+  onReadArticle(article: any): void {
+    this.historyService.logRead(article, this.category);
   }
-
-  trackByUrl(index: number, item: any): string {
-    return item.url;
-  }
-
-  showShareModal = false;
-  socialLinks: any = {};
 
   openShareModal(article: any): void {
     this.selectedArticle = article;
-
-    this.newsService.shareNews(article).subscribe(
-      (response: any) => {
+    this.newsService.shareNews(article).subscribe({
+      next: (response: any) => {
         this.socialLinks = response.socialMediaLinks;
         this.showShareModal = true;
-
         document.body.style.overflow = 'hidden';
       },
-      (error) => {
-        console.error('Failed to share news:', error);
-      },
-    );
+      error: (error) => console.error('Failed to share news:', error),
+    });
   }
 
   openSocialLink(url: string): void {
@@ -114,7 +124,17 @@ export class AllNewsComponent implements OnInit {
 
   closeModal(): void {
     this.showShareModal = false;
+    document.body.style.overflow = '';
+  }
 
-    document.body.style.overflow = 'auto';
+  // Hook for save events — Week 8 will add toast notification here
+  onSaveClicked(event: { article: any; saved: boolean }): void {}
+
+  handleImageError(event: any): void {
+    event.target.src = 'assets/googleNews.png';
+  }
+
+  trackByUrl(index: number, item: any): string {
+    return item.url;
   }
 }

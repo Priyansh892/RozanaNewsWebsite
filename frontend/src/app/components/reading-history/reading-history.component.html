@@ -1,0 +1,111 @@
+<div class="history-page">
+
+    <!-- ── Header ─────────────────────────────────────── -->
+    <div class="history-header">
+        <div class="header-inner">
+            <div class="header-left">
+                <h1 class="page-title">
+                    <span class="title-icon">📖</span>
+                    Reading History
+                </h1>
+                <p class="page-subtitle" *ngIf="total > 0">
+                    {{ total }} article{{ total !== 1 ? 's' : '' }} read so far
+                </p>
+                <p class="page-subtitle" *ngIf="total === 0 && !isLoading">
+                    Your reading journey starts here
+                </p>
+            </div>
+            <button class="btn-clear-all" *ngIf="history.length > 0" (click)="confirmClearAll()">
+                🗑 Clear All
+            </button>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────── -->
+    <div class="container" *ngIf="error">
+        <div class="error-banner">
+            {{ error }}
+            <button (click)="loadHistory()">Retry</button>
+        </div>
+    </div>
+
+    <!-- ── Loading Skeleton ───────────────────────────── -->
+    <div class="container" *ngIf="isLoading">
+        <div class="history-list">
+            <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+                <div class="sk-thumb"></div>
+                <div class="sk-text">
+                    <div class="sk-line title"></div>
+                    <div class="sk-line short"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Empty State ────────────────────────────────── -->
+    <div class="empty-state" *ngIf="!isLoading && history.length === 0 && !error">
+        <div class="empty-icon">🔍</div>
+        <h3>No reading history yet</h3>
+        <p>Every article you open will appear here automatically.</p>
+    </div>
+
+    <!-- ── History List ───────────────────────────────── -->
+    <div class="container" *ngIf="!isLoading && history.length > 0">
+        <div class="history-list">
+            <div class="history-row" *ngFor="let entry of history; trackBy: trackById">
+                <!-- Thumbnail -->
+                <div class="thumb-wrap" (click)="openArticle(entry.url)">
+                    <img [src]="entry.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
+                        [alt]="entry.title" />
+                </div>
+
+                <!-- Content -->
+                <div class="row-content">
+                    <div class="row-meta">
+                        <span class="category-tag" [ngClass]="entry.category">
+                            {{ entry.category }}
+                        </span>
+                        <span class="source-name">{{ entry.source?.name || 'Unknown' }}</span>
+                        <span class="dot">•</span>
+                        <span class="read-time">{{ entry.readAt | date:'MMM d, h:mm a' }}</span>
+                    </div>
+
+                    <h4 class="row-title" (click)="openArticle(entry.url)">
+                        {{ entry.title || 'Untitled Article' }}
+                    </h4>
+                </div>
+
+                <!-- Remove -->
+                <button class="btn-remove" (click)="removeEntry(entry.articleId)" title="Remove from history">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">
+                ← Prev
+            </button>
+            <span class="page-info">Page <strong>{{ page }}</strong> of {{ totalPages }}</span>
+            <button class="page-btn" (click)="handleNext()" [disabled]="page >= totalPages">
+                Next →
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Clear Confirmation Modal ───────────────────── -->
+<div class="modal-backdrop" *ngIf="showClearConfirm" (click)="cancelClear()" (keydown.escape)="cancelClear()"
+    tabindex="0" role="dialog" aria-modal="true">
+    <div class="confirm-modal" (click)="$event.stopPropagation()">
+        <div class="confirm-icon">⚠️</div>
+        <h3>Clear all history?</h3>
+        <p>This will permanently remove all {{ total }} articles from your reading history. This cannot be undone.</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel" (click)="cancelClear()">Cancel</button>
+            <button class="btn-confirm-delete" (click)="clearAll()">Yes, Clear All</button>
+        </div>
+    </div>
+</div>

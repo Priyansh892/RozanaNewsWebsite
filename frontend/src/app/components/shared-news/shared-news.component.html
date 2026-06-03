@@ -6,4 +6,11 @@
   <button class="btn btn-outline-secondary ml-2" (click)="shareNews()">
     <i class="fas fa-share"></i> Share
   </button>
+
+  <button class="btn btn-outline-secondary" (click)="toggleSave()" [disabled]="isSaving"
+    [title]="isSaved ? 'Remove from saved' : 'Save article'">
+    <i [class]="isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
+    <span *ngIf="!isSaved">Save</span>
+    <span *ngIf="isSaved">Saved</span>
+  </button>
 </div>

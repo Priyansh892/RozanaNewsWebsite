@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { NewsService } from '../services/news.service';
+import { HistoryService } from '../services/history.service';
+import { SavedNewsService } from '../services/saved-news.service';
 import { SharedNewsComponent } from '../shared-news/shared-news.component';
 import { countries } from '../countries';
 
@@ -20,26 +22,41 @@ export class CountryNewsComponent implements OnInit {
   totalResults = 0;
   isLoading = false;
   error: string | null = null;
-  max = 12;
+  max = 10;
   iso: string | null = null;
   totalPages = 1;
-  selectedCountryName: string = '';
+  selectedCountryName = '';
   selectedArticle: any;
+  showShareModal = false;
+  socialLinks: any = {};
 
-  constructor(
-    private route: ActivatedRoute,
-    private newsService: NewsService,
-  ) {}
+  // Category for this component — used by shared-news for save + history
+  readonly category = 'country';
+
+  private route = inject(ActivatedRoute);
+  private newsService = inject(NewsService);
+  private historyService = inject(HistoryService);
+  private savedNewsService = inject(SavedNewsService); // ✅ added for read logging
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.iso = params.get('iso');
-      if (this.iso) {
-        this.updateCountryUI(this.iso);
-        this.page = 1; // Reset to first page on country change
-        this.fetchData();
-      }
-    });
+    // Load saved IDs first, then subscribe to route params
+    const init = () => {
+      this.route.paramMap.subscribe((params) => {
+        this.iso = params.get('iso');
+        if (this.iso) {
+          this.updateCountryUI(this.iso);
+          this.page = 1;
+          this.fetchData();
+        }
+      });
+    };
+    if (this.savedNewsService.isLoaded) {
+      init();
+    } else {
+      this.savedNewsService
+        .loadSavedIds()
+        .subscribe({ next: () => init(), error: () => init() });
+    }
   }
 
   private updateCountryUI(code: string): void {
@@ -53,7 +70,6 @@ export class CountryNewsComponent implements OnInit {
 
   fetchData(): void {
     if (!this.iso) return;
-
     this.isLoading = true;
     this.error = null;
 
@@ -100,31 +116,21 @@ export class CountryNewsComponent implements OnInit {
     }
   }
 
-  trackByUrl(index: number, item: any): string {
-    return item.url;
+  // Log reading history when user clicks "Read Full Story"
+  onReadArticle(article: any): void {
+    this.historyService.logRead(article, this.category);
   }
-
-  handleImageError(event: any): void {
-    event.target.src = 'assets/googleNews.png';
-  }
-
-  showShareModal = false;
-  socialLinks: any = {};
 
   openShareModal(article: any): void {
     this.selectedArticle = article;
-
-    this.newsService.shareNews(article).subscribe(
-      (response: any) => {
+    this.newsService.shareNews(article).subscribe({
+      next: (response: any) => {
         this.socialLinks = response.socialMediaLinks;
         this.showShareModal = true;
-
         document.body.style.overflow = 'hidden';
       },
-      (error) => {
-        console.error('Failed to share news:', error);
-      },
-    );
+      error: (error) => console.error('Failed to share news:', error),
+    });
   }
 
   openSocialLink(url: string): void {
@@ -133,7 +139,21 @@ export class CountryNewsComponent implements OnInit {
 
   closeModal(): void {
     this.showShareModal = false;
+    document.body.style.overflow = '';
+  }
 
-    document.body.style.overflow = 'auto';
+  trackByUrl(index: number, item: any): string {
+    return item.url;
+  }
+
+  handleImageError(event: any): void {
+    event.target.src = 'assets/googleNews.png';
+  }
+
+  // Called when user saves/unsaves from shared-news component
+  // Currently just a hook — Week 8 will add a toast notification here
+  onSaveClicked(event: { article: any; saved: boolean }): void {
+    // e.g: show toast "Article saved to Reading List" / "Article removed"
+    // Toast service will be wired here in Week 8
   }
 }

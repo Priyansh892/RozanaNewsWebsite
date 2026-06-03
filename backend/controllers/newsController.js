@@ -1,75 +1,116 @@
 const axios = require("axios");
 const { buildKey, withCache } = require("../utils/cacheUtils");
-const SavedNews = require('../models/SavedNews');
-const User=require('../models/User');
+
+// GNews API Base Request
 async function makeApiRequest(url) {
   try {
     const response = await axios.get(url);
+
+    // Normalize GNews response to match the shape frontend already expects
+    const raw = response.data;
+    const normalized = {
+      totalResults: raw.totalArticles || 0,
+      articles: (raw.articles || []).map(normalizeArticle),
+    };
+
     return {
       status: 200,
       success: true,
       message: "Successfully fetched the data",
-      data: response.data,
+      data: normalized,
     };
   } catch (error) {
     console.error(
-      "[NewsAPI] Request error:",
+      "[GNews] Request error:",
       error.response?.data || error.message,
     );
+
+    // GNews returns error shape: { errors: ["message"] }
+    const errMsg = error.response?.data?.errors?.[0] || error.message;
     return {
-      status: 500,
+      status: error.response?.status || 500,
       success: false,
-      message: "Failed to fetch data from the News API",
-      error: error.response?.data || error.message,
+      message: "Failed to fetch data from GNews API",
+      error: errMsg,
     };
   }
 }
 
+// Article Normalizer
+// Maps GNews article shape → NewsAPI shape so frontend needs zero changes
+function normalizeArticle(article) {
+  return {
+    title: article.title || "",
+    description: article.description || "",
+    url: article.url || "",
+    urlToImage: article.image || "", // GNews uses 'image' not 'urlToImage'
+    publishedAt: article.publishedAt || "",
+    author: article.source?.name || "", // GNews has no author field — use source name
+    content: article.content || "",
+    source: {
+      id: article.source?.id || null,
+      name: article.source?.name || "Unknown",
+      url: article.source?.url || "",
+      country: article.source?.country || "",
+    },
+  };
+}
+
+// GET /api/news/all-news
+// Query params: ?q=india&page=1&pageSize=10
+// GNews max per request is 10 on free tier — pageSize capped accordingly
 exports.getAllNews = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 80;
-  const q = req.query.q || "world";
+  const pageSize = Math.min(parseInt(req.query.pageSize) || 10, 10); // GNews free tier max = 10
+  const q = req.query.q || "india"; // default india
 
   const cacheKey = buildKey.allNews(q, page, pageSize);
 
   const result = await withCache(cacheKey, () => {
-    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=in&max=${pageSize}&page=${page}&apikey=${process.env.NEWS_API_KEY}`;
     return makeApiRequest(url);
   });
 
   res.status(result.status).json(result);
 };
 
+// GET /api/news/top-headlines
+// Query params: ?category=general&page=1&pageSize=10
 exports.getTopHeadlines = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 80;
+  const pageSize = Math.min(parseInt(req.query.pageSize) || 10, 10);
   const category = req.query.category || "general";
 
   const cacheKey = buildKey.headlines(category, page, pageSize);
 
   const result = await withCache(cacheKey, () => {
-    const url = `https://newsapi.org/v2/top-headlines?category=${category}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    // GNews top-headlines endpoint with India default
+    const url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=en&country=in&max=${pageSize}&page=${page}&apikey=${process.env.NEWS_API_KEY}`;
     return makeApiRequest(url);
   });
 
   res.status(result.status).json(result);
 };
 
+// GET /api/news/country/:iso
+// Route param: /api/news/country/in
 exports.getTopHeadlinesByCountry = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 80;
+  const pageSize = Math.min(parseInt(req.query.pageSize) || 10, 10);
   const country = req.params.iso;
 
   const cacheKey = buildKey.country(country, page, pageSize);
 
   const result = await withCache(cacheKey, () => {
-    const url = `https://newsapi.org/v2/top-headlines?country=${country}&page=${page}&pageSize=${pageSize}&apiKey=${process.env.NEWS_API_KEY}`;
+    // GNews uses country param same way
+    const url = `https://gnews.io/api/v4/top-headlines?country=${country}&lang=en&max=${pageSize}&page=${page}&apikey=${process.env.NEWS_API_KEY}`;
     return makeApiRequest(url);
   });
 
   res.status(result.status).json(result);
 };
 
+// POST /api/news/share-news
 exports.shareNews = async (req, res) => {
   try {
     const { url, title } = req.body;
@@ -104,66 +145,3 @@ exports.shareNews = async (req, res) => {
     });
   }
 };
-
-// exports.saveNews = async (req, res) => {
-//   try {
-//     // Extract news data from request body
-//     const { title, description, url, urlToImage, publishedAt, author, source } = req.body;
-//     const userId = req.userId;
-
-//     if (!userId) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "Unauthorized: User ID is missing"
-//       });
-//     }
-
-//     // Create a new news document
-//     const news = new SavedNews({
-//       title,
-//       description,
-//       url,
-//       urlToImage,
-//       publishedAt,
-//       author,
-//       source,
-//       userId,
-//     });
-
-//     // Save the news document to the database
-//     await news.save();
-
-//     // Respond with success
-//     res.status(201).json({
-//       success: true,
-//       message: "News saved successfully!",
-//       news,
-//     });
-//   } catch (error) {
-//     console.error("Error saving news:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Failed to save news",
-//       error: error.message,
-//     });
-//   }
-// };
-
-// exports.getSavedNews = async (req, res) => {
-//   try {
-//     const userId = req.userId;
-//     // Find all saved news for the user
-//     const savedNews = await SavedNews.find({ userId });
-//     res.status(200).json({
-//       success: true,
-//       news: savedNews
-//     });
-//   } catch (error) {
-//     console.error("Error fetching saved news:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Failed to fetch saved news",
-//       error: error.message,
-//     });
-//   }
-// };

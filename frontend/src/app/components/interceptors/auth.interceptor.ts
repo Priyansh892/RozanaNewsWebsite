@@ -18,7 +18,6 @@ export class AuthInterceptor implements HttpInterceptor {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  // Prevents multiple simultaneous refresh calls
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
@@ -26,7 +25,7 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
-    // Skip the refresh endpoint itself to avoid infinite loops
+    // Skip refresh endpoint to avoid infinite loop
     if (req.url.includes('/refresh-token')) {
       return next.handle(req);
     }
@@ -34,12 +33,20 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401 && isPlatformBrowser(this.platformId)) {
-          // Distinguish between "token expired" and other 401s
-          const isExpired = error.error?.error === 'Access token expired';
-          if (isExpired) {
+          const errorMsg = error.error?.error || '';
+
+          if (errorMsg === 'Access token expired') {
+            // ✅ Token expired — try to refresh silently then retry
             return this.handle401WithRefresh(req, next);
           }
+
+          // ✅ Any other 401 (missing token, invalid token, user not found)
+          // means the session is unrecoverable — force logout immediately
+          // Previously these were just re-thrown and nothing happened
+          this.forceLogoutAndRedirect();
+          return throwError(() => error);
         }
+
         return throwError(() => error);
       }),
     );
@@ -51,36 +58,43 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
-      this.refreshTokenSubject.next(null); // signal: refresh in progress
+      this.refreshTokenSubject.next(null);
 
       return this.authService.refreshTokens().pipe(
         switchMap(() => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(true); // signal: refresh done
-          // Retry the original request — cookies are updated server-side
+          this.refreshTokenSubject.next(true);
           return next.handle(req);
         }),
         catchError((refreshError) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(false);
-          // Refresh failed — force logout and redirect
-          this.authService.forceLogout();
-          this.router.navigate(['/login']);
+          // ✅ Refresh also failed — session fully expired, force logout
+          this.forceLogoutAndRedirect();
           return throwError(() => refreshError);
         }),
       );
     }
 
-    // Another request already triggered a refresh — wait for it to complete
+    // Another request already triggered refresh — wait for result
     return this.refreshTokenSubject.pipe(
       filter((result) => result !== null),
       take(1),
       switchMap((success) => {
         if (success) {
-          return next.handle(req); // retry with updated cookies
+          return next.handle(req);
         }
+        // ✅ Refresh completed but failed — redirect
+        this.forceLogoutAndRedirect();
         return throwError(() => new Error('Token refresh failed'));
       }),
     );
+  }
+
+  // ✅ Single place that handles all unrecoverable auth failures
+  // Clears local session state + saved IDs cache + redirects to login
+  private forceLogoutAndRedirect(): void {
+    this.authService.forceLogout();
+    this.router.navigate(['/login']);
   }
 }

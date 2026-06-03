@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from './components/services/auth.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
 
   selectedCategory: string | null = null;
   selectedCountry: string | null = null;
+  isNavbarOpen = false;
 
   categories = [
     'business',
@@ -29,24 +30,19 @@ export class AppComponent implements OnInit {
     'technology',
     'politics',
   ];
+
   countries = countries;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-  ) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  ngOnInit(): void {
-    // Optionally, you can handle any initialization logic here
-  }
+  ngOnInit(): void {}
 
-  isNavbarOpen = false;
-
-  toggleNavbar() {
+  toggleNavbar(): void {
     this.isNavbarOpen = !this.isNavbarOpen;
   }
 
-  closeNavbar() {
+  closeNavbar(): void {
     this.isNavbarOpen = false;
   }
 
@@ -68,17 +64,16 @@ export class AppComponent implements OnInit {
 
   navigateToTopHeadlines(category: string): void {
     this.selectedCategory = category;
-    this.router.navigate(['/top-headlines', this.selectedCategory]);
+    this.router.navigate(['/top-headlines', category]);
   }
 
   navigateToCountryNews(countryName: string): void {
     this.selectedCountry = countryName;
-    const isoCode = this.getCountryIsoCode(this.selectedCountry);
+    const isoCode = this.getCountryIsoCode(countryName);
     this.router.navigate(['/country', isoCode]);
   }
 
   getCountryIsoCode(countryName: string): string {
-    // Find the ISO code for the selected country
     const countryObj = this.countries.find(
       (c) => c.countryName === countryName,
     );

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { SavedNewsService } from './saved-news.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -14,7 +15,8 @@ export class AuthService {
 
   private http = inject(HttpClient);
   private router = inject(Router);
-  private cookieService = inject(CookieService); // injected at field level, not inside constructor
+  private cookieService = inject(CookieService);
+  private savedNewsService = inject(SavedNewsService); // ✅ injected at field level, not inside constructor
   private platformId = inject(PLATFORM_ID);
 
   private currentUserSubject = new BehaviorSubject<any>(null);
@@ -42,6 +44,10 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // No client-side SHA-256 hashing — bcrypt over HTTPS is sufficient and correct.
+  // Sending a SHA-256 hash as the "password" doesn't improve security because the hash
+  // itself becomes the credential. If intercepted, it could be replayed. bcrypt on the
+  // server side (over HTTPS) is the correct and complete solution.
   register(username: string, password: string, email: string): Observable<any> {
     return this.http
       .post<any>(
@@ -88,7 +94,7 @@ export class AuthService {
     this.clearSession();
   }
 
-  // consistent behavior in both browser and SSR environments.
+  // Fixed: consistent behavior in both browser and SSR environments.
   // Previously the SSR branch sent plaintext passwords while the browser branch hashed them.
   // Now both environments send plaintext — password security is handled entirely server-side by bcrypt.
   resetPassword(
@@ -112,7 +118,7 @@ export class AuthService {
     );
   }
 
-  // isLoggedIn now also validates that the actual auth state is consistent.
+  // ✅ isLoggedIn now also validates that the actual auth state is consistent.
   // If userDetails cookie exists but loggedIn flag is false (e.g. after SSR hydration),
   // we restore state from the cookie.
   isLoggedIn(): boolean {
@@ -156,6 +162,8 @@ export class AuthService {
     }
     this.loggedIn = false;
     this.currentUserSubject.next(null);
+    // Clear saved IDs cache on logout so next user starts fresh
+    this.savedNewsService.clearState();
     this.router.navigate(['/login']);
   }
 }

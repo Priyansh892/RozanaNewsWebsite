@@ -1,35 +1,45 @@
 <nav class="navbar navbar-expand-lg fixed-top">
   <div class="container-fluid">
     <a class="navbar-brand" routerLink="/">RozanaNews</a>
+
     <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" [class.show]="isNavbarOpen">
       <ul class="navbar-nav ms-auto">
+
+        <!-- All News -->
         <li class="nav-item">
-          <a class="nav-link" routerLink="/all-news" routerLinkActive="active" (click)="closeNavbar()">All News</a>
+          <a class="nav-link" routerLink="/all-news" routerLinkActive="active" (click)="closeNavbar()">
+            All News
+          </a>
         </li>
 
+        <!-- Top Headlines Dropdown -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" id="headlinesDropdown" role="button" data-bs-toggle="dropdown">
             Top Headlines
           </a>
           <ul class="dropdown-menu shadow" aria-labelledby="headlinesDropdown">
             <li *ngFor="let category of categories">
-              <a class="dropdown-item text-capitalize" (click)="navigateToTopHeadlines(category); closeNavbar()">{{ category }}</a>
+              <a class="dropdown-item text-capitalize" (click)="navigateToTopHeadlines(category); closeNavbar()">
+                {{ category }}
+              </a>
             </li>
           </ul>
         </li>
 
+        <!-- Countries Dropdown -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" id="countriesDropdown" role="button" data-bs-toggle="dropdown">
             Countries
           </a>
           <ul class="dropdown-menu dropdown-menu-end custom-dropdown-scroll shadow" aria-labelledby="countriesDropdown">
             <li *ngFor="let country of countries">
-              <a class="dropdown-item d-flex justify-content-between align-items-center" 
-                 [class.active-item]="selectedCountry === country.countryName"
-                 (click)="navigateToCountryNews(country.countryName); closeNavbar()">
+              <a class="dropdown-item d-flex justify-content-between align-items-center"
+                [class.active-item]="selectedCountry === country.countryName"
+                (click)="navigateToCountryNews(country.countryName); closeNavbar()">
                 {{ country.countryName }}
                 <i *ngIf="selectedCountry === country.countryName" class="bi bi-check2 text-info"></i>
               </a>
@@ -37,25 +47,47 @@
           </ul>
         </li>
 
-        <!-- Saved News Link -->
-        <!-- <li class="nav-item" *ngIf="isLoggedIn()">
-          <a class="nav-link" routerLink="/saved-news" routerLinkActive="active">Saved News</a>
-        </li> -->
-
-        <!-- Authentication Links -->
+        <!-- Auth: not logged in -->
         <li class="nav-item" *ngIf="!isLoggedIn()">
           <a class="nav-link" routerLink="/login" routerLinkActive="active">LOGIN</a>
         </li>
         <li class="nav-item" *ngIf="!isLoggedIn()">
           <a class="nav-link" routerLink="/register" routerLinkActive="active">REGISTER</a>
         </li>
+
+        <!-- Auth: logged in — user dropdown -->
         <li class="nav-item dropdown" *ngIf="isLoggedIn()">
-          <a class="nav-link dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown"
+          <a class="nav-link dropdown-toggle user-menu" id="userDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
             {{ getUsername() }}
           </a>
-          <ul class="dropdown-menu" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" routerLink="/login" (click)="logout(); closeNavbar()">Logout</a></li>
+          <ul class="dropdown-menu dropdown-menu-end user-dropdown shadow" aria-labelledby="userDropdown">
+
+            <!-- Saved News -->
+            <li>
+              <a class="dropdown-item" routerLink="/saved-news" (click)="closeNavbar()">
+                <i class="fas fa-bookmark me-2"></i> Saved Articles
+              </a>
+            </li>
+
+            <!-- Reading History -->
+            <li>
+              <a class="dropdown-item" routerLink="/reading-history" (click)="closeNavbar()">
+                <i class="fas fa-history me-2"></i> Reading History
+              </a>
+            </li>
+
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+
+            <!-- Logout -->
+            <li>
+              <a class="dropdown-item text-danger" (click)="logout(); closeNavbar()">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+              </a>
+            </li>
+
           </ul>
         </li>
       </ul>

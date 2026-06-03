@@ -9,6 +9,8 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { AllNewsComponent } from './components/all-news/all-news.component';
 import { CountryNewsComponent } from './components/country-news/country-news.component';
 import { TopHeadlinesComponent } from './components/top-headlines/top-headlines.component';
+import { SavedNewsComponent } from './components/saved-news/saved-news.component';
+import { ReadingHistoryComponent } from './components/reading-history/reading-history.component';
 
 const authGuard = () => {
   const auth = inject(AuthService);
@@ -49,8 +51,16 @@ export const routes: Routes = [
     component: TopHeadlinesComponent,
     canActivate: [authGuard],
   },
-  // { path: 'saved-news', component: SavedNewsComponent, canActivate: [authGuard] },
-
+  {
+    path: 'saved-news',
+    component: SavedNewsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reading-history',
+    component: ReadingHistoryComponent,
+    canActivate: [authGuard],
+  },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
