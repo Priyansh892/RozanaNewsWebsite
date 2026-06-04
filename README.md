@@ -15,7 +15,7 @@ Backend -> Node.js + Express.js
 Database -> MongoDB + Mongoose
 Cache -> Redis (Upstash)
 Auth -> JWT + httpOnly cookies + refresh token rotation
-News Data -> newsapi.org 
+News Data -> (https://docs.gnews.io/) 
 Security -> Helmet.js + express-rate-limit
 
 ✨ Features
