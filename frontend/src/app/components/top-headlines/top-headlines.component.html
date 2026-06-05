@@ -24,32 +24,31 @@
 <div class="container my-5" *ngIf="!isLoading">
   <div class="row" *ngIf="data.length > 0; else noData">
     <div class="col-md-4 mb-4" *ngFor="let article of data; trackBy: trackByUrl">
-      <div class="news-card h-100">
-
+      <div class="card h-100 news-card shadow-sm">
         <div class="img-wrapper">
           <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
-            [alt]="article.title" />
+            class="card-img-top" [alt]="article.title" loading="lazy" />
           <span class="badge bg-primary source-badge">
             {{ article.source?.name || 'News' }}
           </span>
         </div>
-
-        <div class="p-3">
+        <div class="card-body">
           <h5 class="card-title">{{ article.title || 'No Title Available' }}</h5>
-          <p class="card-text">{{ article.description || 'No description available.' }}</p>
-          <!-- ✅ (click) logs history silently -->
+          <p class="card-text text-muted">
+            {{ article.description || 'No description available for this article.' }}
+          </p>
+          <!-- ✅ (click) logs history silently before opening article -->
           <a [href]="article.url" target="_blank" class="btn btn-read" [class.disabled]="!article.url"
             (click)="onReadArticle(article)">
             Read Full Story
           </a>
         </div>
-
         <div class="card-footer bg-white border-top-0">
           <small class="text-muted">
             {{ article.publishedAt | date:'mediumDate' }} •
             {{ article.author || 'Staff' }}
           </small>
-          <!-- ✅ [category] passes route category (sports/tech/etc) for save + history -->
+          <!-- [category] and (saveClicked) wired up -->
           <app-shared-news [article]="article" [category]="category" (shareClicked)="openShareModal($event)"
             (saveClicked)="onSaveClicked($event)">
           </app-shared-news>
@@ -57,10 +56,9 @@
       </div>
     </div>
   </div>
-
   <ng-template #noData>
-    <div class="text-center my-5">
-      <h4 class="text-muted">No news found</h4>
+    <div class="text-center my-5 py-5">
+      <h3 class="text-muted">No news found.</h3>
     </div>
   </ng-template>
 </div>

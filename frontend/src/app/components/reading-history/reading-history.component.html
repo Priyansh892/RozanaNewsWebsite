@@ -1,6 +1,4 @@
 <div class="history-page">
-
-    <!-- ── Header ─────────────────────────────────────── -->
     <div class="history-header">
         <div class="header-inner">
             <div class="header-left">
@@ -20,16 +18,12 @@
             </button>
         </div>
     </div>
-
-    <!-- ── Error ──────────────────────────────────────── -->
     <div class="container" *ngIf="error">
         <div class="error-banner">
             {{ error }}
             <button (click)="loadHistory()">Retry</button>
         </div>
     </div>
-
-    <!-- ── Loading Skeleton ───────────────────────────── -->
     <div class="container" *ngIf="isLoading">
         <div class="history-list">
             <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7,8]">
@@ -41,15 +35,11 @@
             </div>
         </div>
     </div>
-
-    <!-- ── Empty State ────────────────────────────────── -->
     <div class="empty-state" *ngIf="!isLoading && history.length === 0 && !error">
         <div class="empty-icon">🔍</div>
         <h3>No reading history yet</h3>
         <p>Every article you open will appear here automatically.</p>
     </div>
-
-    <!-- ── History List ───────────────────────────────── -->
     <div class="container" *ngIf="!isLoading && history.length > 0">
         <div class="history-list">
             <div class="history-row" *ngFor="let entry of history; trackBy: trackById">
@@ -76,7 +66,7 @@
                 </div>
 
                 <!-- Remove -->
-                <button class="btn-remove" (click)="removeEntry(entry.articleId)" title="Remove from history">
+                <button class="btn-remove" (click)="confirmRemove(entry.articleId)" title="Remove from history">
                     ✕
                 </button>
             </div>
@@ -95,8 +85,10 @@
     </div>
 
 </div>
-
-<!-- ── Clear Confirmation Modal ───────────────────── -->
+<app-confirm-dialog [visible]="showRemoveConfirm" title="Remove from history?"
+    message="This article will be removed from your reading history." confirmLabel="Remove" [confirmDanger]="true"
+    (confirmed)="onRemoveConfirmed()" (cancelled)="onRemoveCancelled()">
+</app-confirm-dialog>
 <div class="modal-backdrop" *ngIf="showClearConfirm" (click)="cancelClear()" (keydown.escape)="cancelClear()"
     tabindex="0" role="dialog" aria-modal="true">
     <div class="confirm-modal" (click)="$event.stopPropagation()">

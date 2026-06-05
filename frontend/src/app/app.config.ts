@@ -7,6 +7,7 @@ import {
 } from '@angular/common/http';
 import { routes } from './app.routes';
 import { AuthInterceptor } from './components/interceptors/auth.interceptor';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 // Register AuthInterceptor here so it applies globally to all HttpClient requests.
 // This is what enables automatic token refresh on 401 "Access token expired" responses
@@ -20,5 +21,6 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
+    provideCharts(withDefaultRegisterables()),
   ],
 };

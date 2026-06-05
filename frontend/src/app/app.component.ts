@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from './components/services/auth.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { ToastComponent } from './components/toast/toast.component';
+import { ConfirmDialogComponent } from './components/toast/confirm-dialog.component';
 import { DarkModeService } from './components/services/dark-mode.service';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,7 +16,7 @@ import { countries } from './components/countries';
     RouterModule,
     CommonModule,
     FormsModule,
-    ToastComponent,
+    ConfirmDialogComponent,
     AsyncPipe,
   ],
   templateUrl: './app.component.html',
@@ -50,6 +50,11 @@ export class AppComponent implements OnInit {
 
   toggleNavbar(): void {
     this.isNavbarOpen = !this.isNavbarOpen;
+  }
+
+  toggleDarkMode(): void {
+    this.darkModeService.toggle();
+    this.closeNavbar();
   }
 
   closeNavbar(): void {

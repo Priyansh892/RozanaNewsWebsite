@@ -33,10 +33,17 @@ html {
     scroll-behavior: smooth;
 }
 
+html {
+    background-color: var(--rn-bg);
+    min-height: 100%;
+    transition: background-color 0.25s ease;
+}
+
 body {
     background-color: var(--rn-bg);
     color: var(--rn-ink);
     font-family: "Inter", sans-serif;
+    min-height: 100vh;
     transition: background-color 0.25s ease, color 0.25s ease;
 }
 

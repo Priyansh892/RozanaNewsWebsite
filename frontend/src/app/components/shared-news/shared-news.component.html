@@ -1,13 +1,15 @@
-<!-- Save and Share Buttons -->
 <div class="actions">
   <button class="btn btn-outline-secondary ml-2" (click)="shareNews()">
     <i class="fas fa-share"></i> Share
   </button>
-
-  <button class="btn btn-outline-secondary ms-2" (click)="toggleSave()" [disabled]="isSaving"
+  <button class="btn btn-outline-secondary" (click)="toggleSave()" [disabled]="isSaving"
     [title]="isSaved ? 'Remove from saved' : 'Save article'">
-    <i [class]="isSaved ? 'fas fa-bookmark me-2' : 'far fa-bookmark me-2'"></i>
+    <i [class]="isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'"></i>
     <span *ngIf="!isSaved">Save</span>
     <span *ngIf="isSaved">Saved</span>
   </button>
 </div>
+
+<app-confirm-dialog [visible]="showConfirm" [title]="confirmTitle" [message]="confirmMessage"
+  [confirmLabel]="confirmLabel" [confirmDanger]="confirmDanger" (confirmed)="onConfirmed()" (cancelled)="onCancelled()">
+</app-confirm-dialog>

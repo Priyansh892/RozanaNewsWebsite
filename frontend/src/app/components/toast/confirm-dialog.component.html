@@ -1,0 +1,26 @@
+<div
+  class="confirm-backdrop"
+  *ngIf="visible"
+  (click)="onBackdropClick($event)"
+  (keydown.escape)="onCancel()"
+  tabindex="0"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="confirm-box">
+    <div class="confirm-icon">{{ confirmDanger ? '⚠️' : 'ℹ️' }}</div>
+    <h3 class="confirm-title">{{ title }}</h3>
+    <p class="confirm-message" *ngIf="message">{{ message }}</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" (click)="onCancel()">{{ cancelLabel }}</button>
+      <button
+        class="btn-confirm"
+        [class.danger]="confirmDanger"
+        [class.primary]="!confirmDanger"
+        (click)="onConfirm()"
+      >
+        {{ confirmLabel }}
+      </button>
+    </div>
+  </div>
+</div>
