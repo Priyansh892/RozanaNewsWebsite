@@ -1,11 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { HistoryService } from '../services/history.service';
+import { ToastService } from '../services/toast.service';
+import { ConfirmDialogComponent } from '../toast/confirm-dialog.component';
 
 @Component({
   selector: 'app-reading-history',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, DatePipe],
+  imports: [NgIf, NgFor, NgClass, DatePipe, ConfirmDialogComponent],
   templateUrl: './reading-history.component.html',
   styleUrls: ['./reading-history.component.css'],
 })
@@ -18,10 +20,15 @@ export class ReadingHistoryComponent implements OnInit {
   total = 0;
   limit = 18;
 
-  // Confirmation modal for clear all
+  // Clear all confirmation modal (existing)
   showClearConfirm = false;
 
+  // Single remove confirmation
+  showRemoveConfirm = false;
+  pendingRemoveId: string | null = null;
+
   private historyService = inject(HistoryService);
+  private toastService = inject(ToastService);
 
   ngOnInit(): void {
     this.loadHistory();
@@ -61,14 +68,34 @@ export class ReadingHistoryComponent implements OnInit {
     }
   }
 
-  removeEntry(articleId: string): void {
-    this.historyService.removeFromHistory(articleId).subscribe({
+  confirmRemove(articleId: string): void {
+    this.pendingRemoveId = articleId;
+    this.showRemoveConfirm = true;
+  }
+
+  onRemoveConfirmed(): void {
+    this.showRemoveConfirm = false;
+    if (!this.pendingRemoveId) return;
+
+    this.historyService.removeFromHistory(this.pendingRemoveId).subscribe({
       next: () => {
-        this.history = this.history.filter((h) => h.articleId !== articleId);
+        this.history = this.history.filter(
+          (h) => h.articleId !== this.pendingRemoveId,
+        );
         this.total = Math.max(0, this.total - 1);
+        this.toastService.info('Removed from reading history');
+        this.pendingRemoveId = null;
       },
-      error: () => {},
+      error: () => {
+        this.toastService.error('Failed to remove entry');
+        this.pendingRemoveId = null;
+      },
     });
+  }
+
+  onRemoveCancelled(): void {
+    this.showRemoveConfirm = false;
+    this.pendingRemoveId = null;
   }
 
   confirmClearAll(): void {
@@ -89,8 +116,12 @@ export class ReadingHistoryComponent implements OnInit {
         this.totalPages = 1;
         this.page = 1;
         this.cancelClear();
+        this.toastService.success('Reading history cleared');
       },
-      error: () => {},
+      error: () => {
+        this.toastService.error('Failed to clear history');
+        this.cancelClear();
+      },
     });
   }
 

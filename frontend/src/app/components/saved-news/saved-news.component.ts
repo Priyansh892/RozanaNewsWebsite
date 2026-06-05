@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SavedNewsService } from '../services/saved-news.service';
-import { Router } from '@angular/router';
 import { HistoryService } from '../services/history.service';
 
 @Component({
@@ -20,7 +19,6 @@ export class SavedNewsComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
 
-  // Move to collection modal
   showMoveModal = false;
   movingArticle: any = null;
   newCollectionName = '';
@@ -28,7 +26,6 @@ export class SavedNewsComponent implements OnInit {
 
   private savedNewsService = inject(SavedNewsService);
   private historyService = inject(HistoryService);
-  private router = inject(Router);
   readonly category = 'general';
 
   ngOnInit(): void {
@@ -79,6 +76,14 @@ export class SavedNewsComponent implements OnInit {
         this.filteredArticles = this.filteredArticles.filter(
           (a) => a.articleId !== articleId,
         );
+        this.loadCollections();
+        if (
+          this.filteredArticles.length === 0 &&
+          this.selectedCollection !== 'All'
+        ) {
+          this.selectedCollection = 'All';
+          this.loadSaved();
+        }
       },
       error: () => {},
     });

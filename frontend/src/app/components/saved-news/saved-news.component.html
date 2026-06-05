@@ -10,10 +10,10 @@
     </div>
   </div>
 
-  <div class="collections-bar sticky-top py-2" *ngIf="collections.length > 1">
+  <div class="collections-bar py-2" *ngIf="collections.length > 1">
     <div class="container">
       <div class="collections-scroll d-flex gap-2">
-        <button *ngFor="let col of collections" class="collection-tab px-3 py-2"
+        <button *ngFor="let col of collections" class="collection-tab"
           [ngClass]="{ active: selectedCollection === col }" (click)="selectCollection(col)">
           {{ col }}
         </button>
@@ -46,14 +46,10 @@
 
   <div class="text-center my-5 py-5 empty-state" *ngIf="!isLoading && filteredArticles.length === 0 && !error">
     <div class="empty-icon display-4">📭</div>
-    <h3 class="text-muted mt-3">Nothing saved yet</h3>
-    <p *ngIf="selectedCollection === 'All'" class="text-muted">
-      Hit the bookmark icon on any article to save it here.
-    </p>
-    <p *ngIf="selectedCollection !== 'All'" class="text-muted">
-      No articles in "{{ selectedCollection }}" yet.
-    </p>
-    <button class="btn btn-browse mt-2" (click)="selectCollection('All')">Browse All Saved</button>
+    <h3 class="mt-3">Nothing saved yet</h3>
+    <p *ngIf="selectedCollection === 'All'">Hit the bookmark icon on any article to save it here.</p>
+    <p *ngIf="selectedCollection !== 'All'">No articles in "{{ selectedCollection }}" yet.</p>
+    <button class="btn-browse mt-2" (click)="selectCollection('All')">Browse All Saved</button>
   </div>
 
   <div class="container my-5" *ngIf="!isLoading && filteredArticles.length > 0">
@@ -63,39 +59,27 @@
 
           <div class="img-wrapper">
             <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
-            class="card-img-top" [alt]="article.title" loading="lazy" />
-          <span class="badge bg-primary source-badge">
-            {{ article.source?.name || 'News' }}
-          </span>
+              class="card-img-top" [alt]="article.title" loading="lazy" />
+            <span class="badge source-badge">{{ article.source?.name || 'News' }}</span>
           </div>
 
           <div class="card-body">
-            <div class="card-meta small text-muted mb-2">
+            <div class="card-meta small mb-2">
               <span class="source-name">{{ article.source?.name || 'Unknown' }}</span>
               <span class="dot">•</span>
               <span class="read-date">{{ article.createdAt | date:'mediumDate' }}</span>
             </div>
-
-            <h4 class="card-title">
-              {{ article.title || 'No Title' }}
-            </h4>
-
-            <p class="card-desc">
-              {{ article.description || 'No description available.' }}
-            </p>
-
-            <span class="collection-badge">
-              <i>📁</i> {{ article.collectionName }}
-            </span>
+            <h4 class="card-title">{{ article.title || 'No Title' }}</h4>
+            <p class="card-desc">{{ article.description || 'No description available.' }}</p>
+            <span class="collection-badge"><i>📁</i> {{ article.collectionName }}</span>
           </div>
 
-          <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-3">
-            <div class="card-actions d-flex gap-2">
-              <button class="btn-action read w-100" (click)="openArticle(article)" [disabled]="!article.url" title="Read full article">
-                <a [href]="article.url" target="_blank" class="btn btn-action btn-read" [class.disabled]="!article.url">
+          <div class="card-footer border-top-0 pt-0 pb-3 px-3">
+            <div class="card-actions">
+              <a [href]="article.url" target="_blank" class="btn-action read" [class.disabled]="!article.url"
+                (click)="openArticle(article)">
                 Read Article →
               </a>
-              </button>
               <button class="btn-action move" (click)="openMoveModal(article)" title="Move to collection">
                 📂 Move
               </button>
@@ -118,8 +102,8 @@
     <h2>Move to Collection</h2>
     <p class="small mb-3">{{ movingArticle?.title | slice:0:60 }}...</p>
 
-    <div class="existing-collections text-start mb-3" *ngIf="existingCollections.length > 0">
-      <p class="section-label small font-weight-bold text-muted mb-2">Existing collections</p>
+    <div class="mb-3" *ngIf="existingCollections.length > 0">
+      <p class="section-label small mb-2">Existing collections</p>
       <div class="d-flex flex-wrap gap-2">
         <button *ngFor="let col of existingCollections" class="col-pill"
           [ngClass]="{ current: col === movingArticle?.collectionName }" (click)="moveToCollection(col)">
@@ -128,13 +112,12 @@
       </div>
     </div>
 
-    <div class="new-collection-input text-start mb-4">
-      <p class="section-label small font-weight-bold text-muted mb-2">Or create new</p>
-      <div class="input-row d-flex gap-2">
+    <div class="mb-4">
+      <p class="section-label small mb-2">Or create new</p>
+      <div class="d-flex gap-2">
         <input type="text" class="form-control" [(ngModel)]="newCollectionName" placeholder="e.g. Weekend Reads"
           maxlength="40" />
-        <button class="btn btn-create" [disabled]="!newCollectionName.trim()"
-          (click)="moveToCollection(newCollectionName)">
+        <button class="btn-create" [disabled]="!newCollectionName.trim()" (click)="moveToCollection(newCollectionName)">
           Create & Move
         </button>
       </div>
