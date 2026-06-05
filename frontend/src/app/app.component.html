@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" [class.show]="isNavbarOpen">
       <ul class="navbar-nav ms-auto">
 
-        <!-- Only show news nav items when logged in -->
+        <!-- ✅ Only show news nav items when logged in -->
 
         <!-- All News -->
         <li class="nav-item" *ngIf="isLoggedIn()">
@@ -59,10 +59,10 @@
 
         <!-- Auth: not logged in -->
         <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">LOGIN</a>
         </li>
         <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/register" routerLinkActive="active">Register</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active">REGISTER</a>
         </li>
 
         <!-- Auth: logged in — user dropdown -->
@@ -73,6 +73,11 @@
             {{ getUsername() }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end user-dropdown shadow" aria-labelledby="userDropdown">
+            <li>
+              <a class="dropdown-item" routerLink="/analytics" (click)="closeNavbar()">
+                <i class="fas fa-chart-bar me-2"></i> My Analytics
+              </a>
+            </li>
             <li>
               <a class="dropdown-item" routerLink="/saved-news" (click)="closeNavbar()">
                 <i class="fas fa-bookmark me-2"></i> Saved Articles
