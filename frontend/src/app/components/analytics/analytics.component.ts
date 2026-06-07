@@ -35,7 +35,7 @@ export class AnalyticsComponent implements OnInit {
   private analyticsService = inject(AnalyticsService);
   private authService = inject(AuthService);
 
-  // ── Bar chart — weekly reads ───────────────────────
+  // ── Bar chart - weekly reads ───────────────────────
   barChartType: ChartType = 'bar';
   barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
   barChartOptions: ChartConfiguration['options'] = {
@@ -66,7 +66,7 @@ export class AnalyticsComponent implements OnInit {
     },
   };
 
-  // ── Doughnut chart — categories ────────────────────
+  // ── Doughnut chart - categories ────────────────────
   doughnutChartType: ChartType = 'doughnut';
   doughnutChartData: ChartData<'doughnut'> = { labels: [], datasets: [] };
   doughnutChartOptions: ChartConfiguration['options'] = {

@@ -83,7 +83,7 @@ exports.getSummary = async (req, res) => {
     let tempStreak = 0;
     let checkDate = new Date(startOfToday);
 
-    // Current streak — count backwards from today
+    // Current streak - count backwards from today
     while (true) {
       const key = checkDate.toISOString().split("T")[0];
       if (daySet.has(key)) {
@@ -94,7 +94,7 @@ exports.getSummary = async (req, res) => {
       }
     }
 
-    // Longest streak — iterate all days sorted descending
+    // Longest streak - iterate all days sorted descending
     const sortedDays = [...daySet].sort().reverse();
     let prev = null;
     for (const day of sortedDays) {

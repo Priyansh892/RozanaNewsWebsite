@@ -4,6 +4,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { SavedNewsService } from './saved-news.service';
+import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -16,7 +17,8 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private cookieService = inject(CookieService);
-  private savedNewsService = inject(SavedNewsService); // ✅ injected at field level, not inside constructor
+  private savedNewsService = inject(SavedNewsService);
+  private userService = inject(UserService);
   private platformId = inject(PLATFORM_ID);
 
   private currentUserSubject = new BehaviorSubject<any>(null);
@@ -118,7 +120,7 @@ export class AuthService {
     );
   }
 
-  // ✅ isLoggedIn now also validates that the actual auth state is consistent.
+  // isLoggedIn now also validates that the actual auth state is consistent.
   // If userDetails cookie exists but loggedIn flag is false (e.g. after SSR hydration),
   // we restore state from the cookie.
   isLoggedIn(): boolean {
@@ -164,6 +166,7 @@ export class AuthService {
     this.currentUserSubject.next(null);
     // Clear saved IDs cache on logout so next user starts fresh
     this.savedNewsService.clearState();
+    this.userService.clearState();
     this.router.navigate(['/login']);
   }
 }

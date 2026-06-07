@@ -83,7 +83,7 @@
               <button class="btn-action move" (click)="openMoveModal(article)" title="Move to collection">
                 📂 Move
               </button>
-              <button class="btn-action remove" (click)="unsave(article.articleId)" title="Remove from saved">
+              <button class="btn-action remove" (click)="confirmUnsave(article.articleId)" title="Remove from saved">
                 🗑 Remove
               </button>
             </div>
@@ -126,3 +126,7 @@
     <button class="btn btn-secondary w-100" (click)="closeMoveModal()">Cancel</button>
   </div>
 </div>
+<app-confirm-dialog [visible]="showRemoveConfirm" title="Remove from saved?"
+  message="This article will be removed from your saved list." confirmLabel="Remove" [confirmDanger]="true"
+  (confirmed)="onRemoveConfirmed()" (cancelled)="onRemoveCancelled()">
+</app-confirm-dialog>

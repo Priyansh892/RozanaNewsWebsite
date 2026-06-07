@@ -1,0 +1,146 @@
+<div class="foryou-page">
+
+    <!-- ── Header ─────────────────────────────────────── -->
+    <div class="foryou-header">
+        <div class="header-inner">
+            <div>
+                <h1 class="page-title">✨ For You</h1>
+                <p class="page-subtitle" *ngIf="sources">
+                    Based on
+                    <span *ngIf="sources.explicitInterests?.length">{{ sources.explicitInterests.join(', ') }}</span>
+                    <span *ngIf="sources.implicitFromHistory?.length"> · {{ sources.implicitFromHistory.join(', ')
+                        }}</span>
+                </p>
+            </div>
+            <button class="btn-refresh" (click)="fetchFeed()" [disabled]="isLoading">
+                <span *ngIf="!isLoading">↻ Refresh</span>
+                <span *ngIf="isLoading">Loading...</span>
+            </button>
+        </div>
+
+        <!-- Followed Topics Bar -->
+        <div class="topics-bar" *ngIf="followedTopics.length > 0">
+            <div class="header-inner topics-inner">
+                <div class="topics-scroll">
+                    <span class="topics-label">Following:</span>
+                    <div class="topic-chip" *ngFor="let topic of followedTopics">
+                        {{ topic }}
+                        <button class="chip-x" (click)="unfollowTopic(topic)">✕</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────── -->
+    <div class="container" *ngIf="error">
+        <div class="error-banner mt-4">
+            {{ error }}
+            <button (click)="fetchFeed()">Retry</button>
+        </div>
+    </div>
+
+    <!-- ── Loading Skeleton ───────────────────────────── -->
+    <div class="container my-4" *ngIf="isLoading">
+        <div class="row">
+            <div class="col-md-4 mb-4" *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="card skeleton-card h-100">
+                    <div class="skeleton-img"></div>
+                    <div class="card-body">
+                        <div class="skeleton-text title"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Empty State ────────────────────────────────── -->
+    <div class="empty-state" *ngIf="!isLoading && data.length === 0 && !error">
+        <div class="empty-icon">🔍</div>
+        <h3>Your feed is empty</h3>
+        <p>Update your interests to see personalised articles.</p>
+        <button class="btn-onboarding" routerLink="/onboarding">Update Interests</button>
+    </div>
+
+    <!-- ── News Cards ─────────────────────────────────── -->
+    <div class="container my-5" *ngIf="!isLoading && data.length > 0">
+        <div class="row">
+            <div class="col-md-4 mb-4" *ngFor="let article of data; trackBy: trackByUrl">
+                <div class="card h-100 news-card shadow-sm">
+
+                    <div class="img-wrapper">
+                        <img [src]="article.urlToImage || 'assets/googleNews.png'" (error)="handleImageError($event)"
+                            class="card-img-top" [alt]="article.title" loading="lazy" />
+                        <span class="badge bg-primary source-badge">
+                            {{ article.source?.name || 'News' }}
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ article.title || 'No Title Available' }}</h5>
+                        <p class="card-text text-muted">
+                            {{ article.description || 'No description available.' }}
+                        </p>
+                        <a [href]="article.url" target="_blank" class="btn btn-read" [class.disabled]="!article.url"
+                            (click)="onReadArticle(article)">
+                            Read Full Story
+                        </a>
+                    </div>
+
+                    <div class="card-footer bg-white border-top-0">
+                        <small class="text-muted">
+                            {{ article.publishedAt | date:'mediumDate' }} •
+                            {{ article.author || 'Staff' }}
+                        </small>
+                        <app-shared-news [article]="article" [category]="category"
+                            (shareClicked)="openShareModal($event)" (saveClicked)="onSaveClicked($event)">
+                        </app-shared-news>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Pagination ─────────────────────────────────── -->
+    <div *ngIf="!isLoading && totalResults > 0" class="fixed-pagination-container">
+        <div class="glass-pagination">
+            <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">← Prev</button>
+            <span>Page <strong>{{ page }}</strong> of {{ totalPages }}</span>
+            <button class="page-btn" (click)="handleNext()" [disabled]="page >= totalPages">Next →</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── Share Modal ────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showShareModal" (click)="closeModal()" (keydown.escape)="closeModal()" tabindex="0"
+    role="dialog" aria-modal="true">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Share this news</h2>
+        <div class="shared-news-preview">
+            <img [src]="selectedArticle?.urlToImage || 'assets/googleNews.png'" alt="news" />
+            <h5>{{ selectedArticle?.title }}</h5>
+        </div>
+        <div class="social-buttons">
+            <button class="whatsapp" *ngIf="socialLinks.whatsapp" (click)="openSocialLink(socialLinks.whatsapp)">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </button>
+            <button class="twitter" *ngIf="socialLinks.twitter" (click)="openSocialLink(socialLinks.twitter)">
+                <i class="fab fa-x-twitter"></i> Twitter
+            </button>
+            <button class="facebook" *ngIf="socialLinks.facebook" (click)="openSocialLink(socialLinks.facebook)">
+                <i class="fab fa-facebook-f"></i> Facebook
+            </button>
+            <button class="linkedin" *ngIf="socialLinks.linkedin" (click)="openSocialLink(socialLinks.linkedin)">
+                <i class="fab fa-linkedin-in"></i> LinkedIn
+            </button>
+            <button class="email" *ngIf="socialLinks.email" (click)="openSocialLink(socialLinks.email)">
+                <i class="fas fa-envelope"></i> Email
+            </button>
+        </div>
+        <button class="btn-close-modal" (click)="closeModal()">✕ Close</button>
+    </div>
+</div>

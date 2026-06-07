@@ -1,12 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AuthService } from './components/services/auth.service';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { ConfirmDialogComponent } from './components/toast/confirm-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { DarkModeService } from './components/services/dark-mode.service';
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { countries } from './components/countries';
+import { ToastContainerComponent } from "./components/toast-container/toast-container.component";
 
 @Component({
   selector: 'app-root',
@@ -18,7 +19,8 @@ import { countries } from './components/countries';
     FormsModule,
     ConfirmDialogComponent,
     AsyncPipe,
-  ],
+    ToastContainerComponent
+],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })

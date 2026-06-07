@@ -1,3 +1,8 @@
+/* ── Page layout ──────────────────────────────────────────────── */
+/* ✅ These 3 rules fix the white gaps in dark mode.
+   The issue was that html, body, and main weren't set to cover
+   the full viewport with the theme background color.
+   Bootstrap resets and component styles were creating white gaps. */
 :host {
   display: block;
   min-height: 100vh;
@@ -19,6 +24,7 @@ main {
   transition: background 0.25s ease;
 }
 
+/* ── Navbar ───────────────────────────────────────────────────── */
 .navbar {
   background: var(--rn-bg-nav);
   padding: 10px 20px;
@@ -56,6 +62,7 @@ main {
   background: transparent !important;
 }
 
+/* ── Mobile toggler ───────────────────────────────────────────── */
 .navbar-toggler {
   border-color: var(--rn-accent);
   display: none !important;
@@ -81,6 +88,8 @@ main {
   height: 1.5rem;
 }
 
+/* ── Mobile expanded navbar ───────────────────────────────────── */
+/* ✅ Fix: collapsed navbar on mobile was showing white bg in dark mode */
 .collapse.show,
 .navbar-collapse {
   background: var(--rn-bg-nav);
@@ -100,12 +109,14 @@ main {
   }
 }
 
+/* ── Dropdowns ────────────────────────────────────────────────── */
 .dropdown-menu {
   background: var(--rn-bg-card);
   border: 1px solid var(--rn-border);
   box-shadow: 0 4px 12px var(--rn-shadow);
   padding: 6px 0;
   transition: background 0.25s ease, border-color 0.25s ease;
+  /* ✅ Ensure dropdown always appears above sticky collection chips bar */
   z-index: 1050 !important;
 }
 
@@ -152,6 +163,7 @@ main {
   font-weight: 600;
 }
 
+/* ── User avatar ──────────────────────────────────────────────── */
 .user-avatar {
   width: 32px;
   height: 32px;
@@ -176,4 +188,16 @@ main {
   background: var(--rn-bg-card);
   border: 1px solid var(--rn-border);
   min-width: 200px;
+}
+
+/* ── For You special link ─────────────────────────── */
+.for-you-link {
+  color: var(--rn-gold) !important;
+  font-weight: 600;
+}
+
+.for-you-link:hover,
+.for-you-link.active {
+  color: var(--rn-gold) !important;
+  opacity: 0.85;
 }

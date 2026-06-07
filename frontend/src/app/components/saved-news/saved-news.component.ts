@@ -3,11 +3,21 @@ import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SavedNewsService } from '../services/saved-news.service';
 import { HistoryService } from '../services/history.service';
+import { ToastService } from '../services/toast.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-saved-news',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, DatePipe, FormsModule, SlicePipe],
+  imports: [
+    NgIf,
+    NgFor,
+    NgClass,
+    DatePipe,
+    FormsModule,
+    SlicePipe,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './saved-news.component.html',
   styleUrls: ['./saved-news.component.css'],
 })
@@ -24,8 +34,13 @@ export class SavedNewsComponent implements OnInit {
   newCollectionName = '';
   existingCollections: string[] = [];
 
+  // Confirmation dialog
+  showRemoveConfirm = false;
+  pendingRemoveId: string | null = null;
+
   private savedNewsService = inject(SavedNewsService);
   private historyService = inject(HistoryService);
+  private toastService = inject(ToastService);
   readonly category = 'general';
 
   ngOnInit(): void {
@@ -67,15 +82,29 @@ export class SavedNewsComponent implements OnInit {
     this.loadSaved();
   }
 
-  unsave(articleId: string): void {
-    this.savedNewsService.unsaveArticle(articleId).subscribe({
+  // ── Step 1: show confirmation ──────────────────────
+  confirmUnsave(articleId: string): void {
+    this.pendingRemoveId = articleId;
+    this.showRemoveConfirm = true;
+  }
+
+  // ── Step 2: confirmed → delete ─────────────────────
+  onRemoveConfirmed(): void {
+    this.showRemoveConfirm = false;
+    if (!this.pendingRemoveId) return;
+
+    const id = this.pendingRemoveId;
+    this.pendingRemoveId = null;
+
+    this.savedNewsService.unsaveArticle(id).subscribe({
       next: () => {
         this.savedArticles = this.savedArticles.filter(
-          (a) => a.articleId !== articleId,
+          (a) => a.articleId !== id,
         );
         this.filteredArticles = this.filteredArticles.filter(
-          (a) => a.articleId !== articleId,
+          (a) => a.articleId !== id,
         );
+        this.toastService.info('Article removed from saved');
         this.loadCollections();
         if (
           this.filteredArticles.length === 0 &&
@@ -85,8 +114,15 @@ export class SavedNewsComponent implements OnInit {
           this.loadSaved();
         }
       },
-      error: () => {},
+      error: () => {
+        this.toastService.error('Failed to remove article');
+      },
     });
+  }
+
+  onRemoveCancelled(): void {
+    this.showRemoveConfirm = false;
+    this.pendingRemoveId = null;
   }
 
   openArticle(article: any): void {
@@ -114,10 +150,13 @@ export class SavedNewsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.closeMoveModal();
+          this.toastService.success(`Moved to "${collectionName}"`);
           this.loadCollections();
           this.loadSaved();
         },
-        error: () => {},
+        error: () => {
+          this.toastService.error('Failed to move article');
+        },
       });
   }
 

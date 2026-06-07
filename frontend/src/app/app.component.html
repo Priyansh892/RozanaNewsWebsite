@@ -9,12 +9,19 @@
     <div class="collapse navbar-collapse" [class.show]="isNavbarOpen">
       <ul class="navbar-nav ms-auto">
 
-        <!-- ✅ Only show news nav items when logged in -->
+        <!-- Only show news nav items when logged in -->
 
         <!-- All News -->
         <li class="nav-item" *ngIf="isLoggedIn()">
           <a class="nav-link" routerLink="/all-news" routerLinkActive="active" (click)="closeNavbar()">
             All News
+          </a>
+        </li>
+
+        <!-- For You -->
+        <li class="nav-item" *ngIf="isLoggedIn()">
+          <a class="nav-link for-you-link" routerLink="/for-you" routerLinkActive="active" (click)="closeNavbar()">
+            ✨ For You
           </a>
         </li>
 
@@ -49,7 +56,7 @@
           </ul>
         </li>
 
-        <!-- Dark mode toggle — always visible -->
+        <!-- Dark mode toggle - always visible -->
         <li class="nav-item d-flex align-items-center me-1">
           <button class="dark-toggle" (click)="toggleDarkMode()">
             <span *ngIf="!(darkModeService.isDark$ | async)">🌙 Dark</span>
@@ -59,13 +66,13 @@
 
         <!-- Auth: not logged in -->
         <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">LOGIN</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
         </li>
         <li class="nav-item" *ngIf="!isLoggedIn()">
-          <a class="nav-link" routerLink="/register" routerLinkActive="active">REGISTER</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active">Register</a>
         </li>
 
-        <!-- Auth: logged in — user dropdown -->
+        <!-- Auth: logged in - user dropdown -->
         <li class="nav-item dropdown" *ngIf="isLoggedIn()">
           <a class="nav-link dropdown-toggle user-menu" id="userDropdown" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
@@ -105,7 +112,7 @@
 </nav>
 
 <!-- Global Toast Notifications -->
-<app-confirm-dialog></app-confirm-dialog>
+<app-toast-container></app-toast-container>
 
 <main>
   <router-outlet></router-outlet>

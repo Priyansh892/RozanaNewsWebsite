@@ -10,7 +10,7 @@ import {
 import { NgIf } from '@angular/common';
 import { SavedNewsService } from '../services/saved-news.service';
 import { ToastService } from '../services/toast.service';
-import { ConfirmDialogComponent } from '../toast/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 import { Subscription } from 'rxjs';
 import md5 from 'md5';
 
@@ -63,28 +63,16 @@ export class SharedNewsComponent implements OnInit, OnDestroy {
     if (!this.article || this.isSaving) return;
 
     if (this.isSaved) {
-      this.confirmTitle = 'Remove from saved?';
-      this.confirmMessage =
-        'This article will be removed from your Reading List.';
-      this.confirmLabel = 'Remove';
-      this.confirmDanger = true;
-      this.pendingAction = 'unsave';
+      this.doUnsave();
     } else {
-      this.confirmTitle = 'Save this article?';
-      this.confirmMessage = 'It will be added to your Reading List.';
-      this.confirmLabel = 'Save';
-      this.confirmDanger = false;
-      this.pendingAction = 'save';
+      this.doSave();
     }
-    this.showConfirm = true;
   }
 
   onConfirmed(): void {
     this.showConfirm = false;
     if (this.pendingAction === 'unsave') {
       this.doUnsave();
-    } else if (this.pendingAction === 'save') {
-      this.doSave();
     }
     this.pendingAction = null;
   }
@@ -99,7 +87,7 @@ export class SharedNewsComponent implements OnInit, OnDestroy {
     this.savedNewsService.saveArticle(this.article, this.category).subscribe({
       next: () => {
         this.isSaving = false;
-        this.toastService.success('Article saved to Reading List ✓');
+        this.toastService.success('Article saved to Reading List');
         this.saveClicked.emit({ article: this.article, saved: true });
       },
       error: (err) => {

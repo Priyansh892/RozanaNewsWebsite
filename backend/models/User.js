@@ -7,12 +7,40 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  // store refresh tokens (token id + expiry) for rotation and revocation
+
   refreshTokens: [
     {
       tokenId: { type: String },
       expiresAt: { type: Date },
     },
   ],
+
+  // Personalization
+  // Set during onboarding
+  interests: {
+    type: [String],
+    default: [],
+  },
+
+  // Set during onboarding
+  followedCountries: {
+    type: [String],
+    default: [],
+  },
+
+  // Custom keywords user follows (Follow chips on cards)
+  followedTopics: {
+    type: [String],
+    default: [],
+  },
+
+  // Onboarding completion flag
+  // false = show onboarding after register
+  // true  = skip onboarding, go straight to /all-news
+  onboardingDone: {
+    type: Boolean,
+    default: false,
+  },
 });
+
 module.exports = mongoose.model("User", userSchema);
