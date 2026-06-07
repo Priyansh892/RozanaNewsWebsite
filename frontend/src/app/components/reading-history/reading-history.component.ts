@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { HistoryService } from '../services/history.service';
 import { ToastService } from '../services/toast.service';
-import { ConfirmDialogComponent } from '../toast/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-reading-history',

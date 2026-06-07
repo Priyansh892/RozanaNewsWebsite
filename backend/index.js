@@ -43,7 +43,8 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/news", require("./routes/newsRoutes"));
 app.use("/api/saved", require("./routes/savedNewsRoutes"));
 app.use("/api/history", require("./routes/historyRoutes"));
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use("/api/analytics", require("./routes/analyticsRoutes"));
+app.use("/api/user", require("./routes/userRoutes"));
 
 // Health Check to verify all services are running
 const mongoose = require("mongoose");

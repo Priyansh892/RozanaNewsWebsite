@@ -41,12 +41,13 @@ export class RegisterComponent {
         next: () => {
           this.registrationSuccess = true;
           this.isLoading = false;
-          setTimeout(() => this.router.navigate(['/all-news']), 1500);
+          setTimeout(
+            () => this.router.navigate(['/onboarding'], { replaceUrl: true }),
+            1000,
+          );
         },
         error: (error) => {
           this.isLoading = false;
-          // backend returns specific messages for username taken vs email taken.
-          // Previously all 400s showed the same "username taken" message even for email conflicts.
           if (error.status === 400) {
             this.registrationError =
               error.error?.message ||

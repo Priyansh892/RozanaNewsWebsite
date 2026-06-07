@@ -1,6 +1,6 @@
 const CACHE_NAME = "rozananews-v1";
 
-// Only cache actual static assets — NOT navigation requests
+// Only cache actual static assets - NOT navigation requests
 // Angular handles all routing client-side via the router
 const PRECACHE_ASSETS = [
   "/assets/googleNews.png",
@@ -13,7 +13,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("[SW] Pre-caching static assets");
-      // addAll fails silently if any asset 404s — use individual adds
+      // addAll fails silently if any asset 404s - use individual adds
       return Promise.allSettled(
         PRECACHE_ASSETS.map((url) =>
           cache
@@ -87,7 +87,7 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
   const data = event.data.json();
   self.registration.showNotification(data.title || "RozanaNews", {
-    body: data.body || "Breaking news — tap to read",
+    body: data.body || "Breaking news - tap to read",
     icon: "/assets/icon-192x192.png",
     badge: "/assets/icon-72x72.png",
     data: { url: data.url || "/" },

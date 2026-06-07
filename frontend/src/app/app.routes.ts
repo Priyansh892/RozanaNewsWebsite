@@ -12,6 +12,8 @@ import { TopHeadlinesComponent } from './components/top-headlines/top-headlines.
 import { SavedNewsComponent } from './components/saved-news/saved-news.component';
 import { ReadingHistoryComponent } from './components/reading-history/reading-history.component';
 import { AnalyticsComponent } from './components/analytics/analytics.component';
+import { ForYouComponent } from './components/for-you/for-you.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 
 const authGuard = () => {
   const auth = inject(AuthService);
@@ -65,6 +67,16 @@ export const routes: Routes = [
   {
     path: 'analytics',
     component: AnalyticsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'for-you',
+    component: ForYouComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'onboarding',
+    component: OnboardingComponent,
     canActivate: [authGuard],
   },
   { path: 'login', component: LoginComponent },

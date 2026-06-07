@@ -1,0 +1,108 @@
+<div class="onboarding-page">
+    <div class="onboarding-card">
+
+        <!-- Header -->
+        <div class="ob-header">
+            <div class="ob-logo">🗞️ RozanaNews</div>
+            <h1 class="ob-title">Personalise Your Feed</h1>
+            <p class="ob-subtitle">Tell us what you care about - we'll do the rest</p>
+
+            <!-- Progress bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width]="progressWidth"></div>
+            </div>
+            <div class="step-label">Step {{ step }} of {{ totalSteps }}</div>
+        </div>
+
+        <!-- Categories -->
+        <div class="ob-body" *ngIf="step === 1">
+            <h2 class="step-title">What topics interest you?</h2>
+            <p class="step-subtitle">Pick at least 1 to continue</p>
+
+            <div class="category-grid">
+                <button *ngFor="let cat of allCategories" class="cat-chip"
+                    [ngClass]="{ selected: isInterestSelected(cat.id) }" (click)="toggleInterest(cat.id)">
+                    <span class="cat-emoji">{{ cat.emoji }}</span>
+                    <span class="cat-label">{{ cat.label }}</span>
+                    <span class="cat-check" *ngIf="isInterestSelected(cat.id)">✓</span>
+                </button>
+            </div>
+
+            <p class="selection-hint" *ngIf="selectedInterests.length > 0">
+                {{ selectedInterests.length }} selected
+            </p>
+        </div>
+
+        <!-- Countries -->
+        <div class="ob-body" *ngIf="step === 2">
+            <h2 class="step-title">Which countries do you follow?</h2>
+            <p class="step-subtitle">India is pre-selected. Add more!</p>
+
+            <div class="country-grid">
+                <button *ngFor="let country of allCountries" class="country-chip"
+                    [ngClass]="{ selected: isCountrySelected(country.iso_2_alpha) }"
+                    (click)="toggleCountry(country.iso_2_alpha)">
+                    {{ country.countryName }}
+                    <span class="cat-check" *ngIf="isCountrySelected(country.iso_2_alpha)">✓</span>
+                </button>
+            </div>
+
+            <p class="selection-hint">{{ selectedCountries.length }} selected</p>
+        </div>
+
+        <!-- Step 3: Keywords -->
+        <div class="ob-body" *ngIf="step === 3">
+            <h2 class="step-title">Follow specific topics</h2>
+            <p class="step-subtitle">Type anything - IPL, ISRO, AI, Budget... This step is optional.</p>
+
+            <!-- Input -->
+            <div class="topic-input-row">
+                <input type="text" [(ngModel)]="topicInput" (keydown)="addTopicOnEnter($event)"
+                    placeholder="Type a topic and press Enter" class="topic-input" maxlength="40" />
+                <button class="btn-add-topic" (click)="addTopic(topicInput)" [disabled]="!topicInput.trim()">
+                    Add
+                </button>
+            </div>
+
+            <!-- Added topics -->
+            <div class="followed-chips" *ngIf="followedTopics.length > 0">
+                <div class="followed-chip" *ngFor="let topic of followedTopics">
+                    {{ topic }}
+                    <button class="chip-remove" (click)="removeTopic(topic)">✕</button>
+                </div>
+            </div>
+
+            <!-- Suggested -->
+            <div class="suggestions">
+                <p class="suggestions-label">Suggested for you</p>
+                <div class="suggestions-grid">
+                    <button *ngFor="let topic of suggestedTopics" class="suggestion-chip"
+                        [ngClass]="{ selected: isSuggestedFollowed(topic) }" (click)="toggleSuggested(topic)">
+                        {{ topic }}
+                        <span *ngIf="isSuggestedFollowed(topic)">✓</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer navigation -->
+        <div class="ob-footer">
+            <button class="btn-skip" (click)="skip()" *ngIf="step === 1">
+                Skip for now
+            </button>
+            <button class="btn-back" (click)="prev()" *ngIf="step > 1">
+                ← Back
+            </button>
+
+            <button class="btn-next" (click)="next()" *ngIf="step < totalSteps" [disabled]="!canNext()">
+                Continue →
+            </button>
+
+            <button class="btn-finish" (click)="finish()" *ngIf="step === totalSteps" [disabled]="isSubmitting">
+                <span *ngIf="!isSubmitting">🚀 Start Reading</span>
+                <span *ngIf="isSubmitting">Saving...</span>
+            </button>
+        </div>
+
+    </div>
+</div>

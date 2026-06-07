@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const newsController = require("../controllers/newsController");
 const { protect } = require("../middleware/authMiddleware");
+const { getForYouFeed } = require("../controllers/personalizationController");
 
 // Require authentication for all news endpoints
 router.use(protect);
@@ -14,8 +15,6 @@ router.get("/country/:iso", newsController.getTopHeadlinesByCountry); // GET /ap
 // Social sharing
 router.post("/share-news", newsController.shareNews); // POST /api/news/share
 
-// Uncomment if you implement saving news
-// router.post('/save', newsController.saveNews);             // POST /api/news/save
-// router.get('/saved', newsController.getSavedNews);         // GET /api/news/saved
+router.get("/for-you", getForYouFeed);
 
 module.exports = router;

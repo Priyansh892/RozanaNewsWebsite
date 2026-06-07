@@ -63,4 +63,11 @@ export class NewsService {
       withCredentials: true,
     });
   }
+
+  getForYouFeed(page: number = 1, pageSize: number = 10): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/for-you?page=${page}&pageSize=${pageSize}`,
+      { withCredentials: true },
+    );
+  }
 }
