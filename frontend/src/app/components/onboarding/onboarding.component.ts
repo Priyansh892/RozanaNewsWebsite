@@ -17,6 +17,7 @@ export class OnboardingComponent implements OnInit {
   step = 1;
   totalSteps = 3;
   isSubmitting = false;
+  isUpdating = false; // true when returning user is editing preferences
 
   readonly allCategories = [
     { id: 'business', label: 'Business', emoji: '💼' },
@@ -58,11 +59,16 @@ export class OnboardingComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit(): void {
+    // Load existing preferences — works for both first-time and returning users
     this.userService.getTopics().subscribe({
-      next: (res) => {
-        if (res.onboardingDone) {
-          this.router.navigate(['/all-news'], { replaceUrl: true });
-        }
+      next: (res: any) => {
+        this.isUpdating = res.onboardingDone === true;
+        // Pre-fill with whatever user previously saved
+        if (res.interests?.length) this.selectedInterests = [...res.interests];
+        if (res.followedCountries?.length)
+          this.selectedCountries = [...res.followedCountries];
+        if (res.followedTopics?.length)
+          this.followedTopics = [...res.followedTopics];
       },
       error: () => {},
     });
@@ -149,7 +155,12 @@ export class OnboardingComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.toastService.success('Welcome to RozanaNews! 🎉');
+          this.isSubmitting = false;
+          if (this.isUpdating) {
+            this.toastService.success('Preferences updated! ✓');
+          } else {
+            this.toastService.success('Welcome to RozanaNews! 🎉');
+          }
           this.router.navigate(['/for-you'], { replaceUrl: true });
         },
         error: () => {
@@ -161,20 +172,39 @@ export class OnboardingComponent implements OnInit {
       });
   }
 
+  // Skip — behaviour depends on whether first time or returning user
   skip(): void {
-    this.userService
-      .completeOnboarding({
-        interests: [],
-        followedCountries: ['in'],
-        followedTopics: [],
-      })
-      .subscribe({
-        next: () => this.router.navigate(['/all-news'], { replaceUrl: true }),
-        error: () => this.router.navigate(['/all-news'], { replaceUrl: true }),
-      });
+    if (this.isUpdating) {
+      // Returning user — just go back without changing anything
+      this.router.navigate(['/for-you'], { replaceUrl: true });
+    } else {
+      // First time — save defaults so onboardingDone = true
+      this.userService
+        .completeOnboarding({
+          interests: [],
+          followedCountries: ['in'],
+          followedTopics: [],
+        })
+        .subscribe({
+          next: () => this.router.navigate(['/all-news'], { replaceUrl: true }),
+          error: () =>
+            this.router.navigate(['/all-news'], { replaceUrl: true }),
+        });
+    }
   }
 
   get progressWidth(): string {
     return `${(this.step / this.totalSteps) * 100}%`;
+  }
+
+  // Dynamic title based on whether updating or first time
+  get pageTitle(): string {
+    return this.isUpdating
+      ? 'Update Your Preferences'
+      : 'Personalise Your Feed';
+  }
+
+  get finishLabel(): string {
+    return this.isUpdating ? '✓ Save Changes' : '🚀 Start Reading';
   }
 }

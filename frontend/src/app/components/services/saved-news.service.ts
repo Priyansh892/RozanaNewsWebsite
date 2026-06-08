@@ -9,7 +9,7 @@ export class SavedNewsService {
   private baseUrl = 'http://localhost:5000/api/saved';
   private http = inject(HttpClient);
 
-  // ─── In-memory Set of saved articleIds ───────────────────────────────────
+  //  In-memory Set of saved articleIds 
   // Loaded once on app start / page load.
   // Each card checks this Set locally - no per-card API calls needed.
   private savedIds = new Set<string>();
@@ -17,7 +17,7 @@ export class SavedNewsService {
   private savedIdsSubject = new BehaviorSubject<Set<string>>(new Set());
   savedIds$ = this.savedIdsSubject.asObservable();
 
-  // ─── Load all saved IDs (call once per page/session) ─────────────────────
+  //  Load all saved IDs (call once per page/session) 
   loadSavedIds(): Observable<any> {
     return this.http
       .get<any>(`${this.baseUrl}/ids`, { withCredentials: true })
@@ -32,12 +32,12 @@ export class SavedNewsService {
       );
   }
 
-  // ─── Check saved state locally (no API call) ─────────────────────────────
+  //  Check saved state locally (no API call) 
   isSaved(articleId: string): boolean {
     return this.savedIds.has(articleId);
   }
 
-  // ─── Save article - update Set optimistically ─────────────────────────────
+  //  Save article - update Set optimistically 
   saveArticle(
     article: any,
     category: string,
@@ -59,7 +59,7 @@ export class SavedNewsService {
       );
   }
 
-  // ─── Unsave article - remove from Set optimistically ─────────────────────
+  //  Unsave article - remove from Set optimistically 
   unsaveArticle(articleId: string): Observable<any> {
     return this.http
       .delete<any>(`${this.baseUrl}/${articleId}`, { withCredentials: true })
@@ -73,7 +73,7 @@ export class SavedNewsService {
       );
   }
 
-  // ─── Get all saved articles ───────────────────────────────────────────────
+  //  Get all saved articles 
   getSavedArticles(collection?: string): Observable<any> {
     const params = collection
       ? `?collection=${encodeURIComponent(collection)}`
@@ -81,21 +81,21 @@ export class SavedNewsService {
     return this.http.get(`${this.baseUrl}${params}`, { withCredentials: true });
   }
 
-  // ─── Get all collection names ─────────────────────────────────────────────
+  //  Get all collection names 
   getCollections(): Observable<any> {
     return this.http.get(`${this.baseUrl}/collections`, {
       withCredentials: true,
     });
   }
 
-  // ─── Check single article (kept for edge cases) ───────────────────────────
+  //  Check single article (kept for edge cases) 
   checkSaved(articleId: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/check/${articleId}`, {
       withCredentials: true,
     });
   }
 
-  // ─── Move to collection ───────────────────────────────────────────────────
+  //  Move to collection 
   moveToCollection(articleId: string, collectionName: string): Observable<any> {
     return this.http.patch(
       `${this.baseUrl}/${articleId}/move`,
@@ -104,7 +104,7 @@ export class SavedNewsService {
     );
   }
 
-  // ─── Clear in-memory state (call on logout) ───────────────────────────────
+  //  Clear in-memory state (call on logout) 
   clearState(): void {
     this.savedIds.clear();
     this.loaded = false;

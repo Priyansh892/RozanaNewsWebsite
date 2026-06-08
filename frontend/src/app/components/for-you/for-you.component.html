@@ -1,6 +1,6 @@
 <div class="foryou-page">
 
-    <!-- ── Header ─────────────────────────────────────── -->
+    <!--  Header  -->
     <div class="foryou-header">
         <div class="header-inner">
             <div>
@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <!-- ── Error ──────────────────────────────────────── -->
+    <!--  Error  -->
     <div class="container" *ngIf="error">
         <div class="error-banner mt-4">
             {{ error }}
@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <!-- ── Loading Skeleton ───────────────────────────── -->
+    <!--  Loading Skeleton  -->
     <div class="container my-4" *ngIf="isLoading">
         <div class="row">
             <div class="col-md-4 mb-4" *ngFor="let i of [1,2,3,4,5,6]">
@@ -56,15 +56,15 @@
         </div>
     </div>
 
-    <!-- ── Empty State ────────────────────────────────── -->
-    <div class="empty-state" *ngIf="!isLoading && data.length === 0 && !error">
+    <!--  Empty State  -->
+    <div class="empty-state" *ngIf="!isLoading && data.length === 0 && !error && sources !== null">
         <div class="empty-icon">🔍</div>
         <h3>Your feed is empty</h3>
         <p>Update your interests to see personalised articles.</p>
-        <button class="btn-onboarding" routerLink="/onboarding">Update Interests</button>
+        <button class="btn-onboarding" (click)="router.navigate(['/onboarding'])">Update Interests</button>
     </div>
 
-    <!-- ── News Cards ─────────────────────────────────── -->
+    <!--  News Cards  -->
     <div class="container my-5" *ngIf="!isLoading && data.length > 0">
         <div class="row">
             <div class="col-md-4 mb-4" *ngFor="let article of data; trackBy: trackByUrl">
@@ -104,7 +104,7 @@
         </div>
     </div>
 
-    <!-- ── Pagination ─────────────────────────────────── -->
+    <!--  Pagination  -->
     <div *ngIf="!isLoading && totalResults > 0" class="fixed-pagination-container">
         <div class="glass-pagination">
             <button class="page-btn" (click)="handlePrev()" [disabled]="page <= 1">← Prev</button>
@@ -115,7 +115,7 @@
 
 </div>
 
-<!-- ── Share Modal ────────────────────────────────── -->
+<!--  Share Modal  -->
 <div class="modal-backdrop" *ngIf="showShareModal" (click)="closeModal()" (keydown.escape)="closeModal()" tabindex="0"
     role="dialog" aria-modal="true">
     <div class="modal-content" (click)="$event.stopPropagation()">

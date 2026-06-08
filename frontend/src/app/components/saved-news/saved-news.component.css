@@ -91,7 +91,7 @@
     font-weight: 500;
 }
 
-/* ── Cards ────────────────────────────────────────── */
+/*  Cards  */
 .news-card {
     background: var(--rn-bg-card) !important;
     border-color: var(--rn-border) !important;

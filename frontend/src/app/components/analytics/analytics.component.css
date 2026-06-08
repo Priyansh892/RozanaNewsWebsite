@@ -8,7 +8,7 @@
   transition: background 0.25s ease;
 }
 
-/* ── Header ───────────────────────────────────────── */
+/*  Header  */
 .analytics-header {
   background: #1a1a1a;
   padding: 3rem 2rem 2.5rem;
@@ -63,14 +63,14 @@
 
 .btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Container ────────────────────────────────────── */
+/*  Container  */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* ── Stat Grid ────────────────────────────────────── */
+/*  Stat Grid  */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -134,7 +134,7 @@
 .stat-card.total   { border-left: 4px solid #2196F3; }
 .stat-card.category { border-left: 4px solid #4CAF50; }
 
-/* ── Chart Grid ───────────────────────────────────── */
+/*  Chart Grid  */
 .chart-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -186,7 +186,7 @@
 
 .chart-wrap.tall { height: 280px; }
 
-/* ── Category List ────────────────────────────────── */
+/*  Category List  */
 .category-list {
   display: flex;
   flex-direction: column;
@@ -236,7 +236,7 @@
   flex-shrink: 0;
 }
 
-/* ── No data ──────────────────────────────────────── */
+/*  No data  */
 .no-data {
   display: flex;
   flex-direction: column;
@@ -251,7 +251,7 @@
 .no-data span { font-size: 2.5rem; }
 .no-data p { font-size: 0.88rem; margin: 0; }
 
-/* ── Empty State ──────────────────────────────────── */
+/*  Empty State  */
 .empty-state {
   text-align: center;
   padding: 6rem 2rem;
@@ -268,7 +268,7 @@
 
 .empty-state p { color: var(--rn-ink-muted); }
 
-/* ── Error Banner ─────────────────────────────────── */
+/*  Error Banner  */
 .error-banner {
   background: var(--rn-accent-soft);
   border: 1px solid var(--rn-accent);
@@ -290,7 +290,7 @@
   font-size: 0.85rem;
 }
 
-/* ── Skeleton ─────────────────────────────────────── */
+/*  Skeleton  */
 .sk-stat {
   height: 96px;
   border-radius: 14px;
@@ -314,7 +314,7 @@
   100% { background-position: -200% 0; }
 }
 
-/* ── Responsive ───────────────────────────────────── */
+/*  Responsive  */
 @media (max-width: 1024px) {
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .chart-grid { grid-template-columns: 1fr; }

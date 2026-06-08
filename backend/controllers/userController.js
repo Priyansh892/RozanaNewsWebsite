@@ -1,13 +1,15 @@
 const User = require("../models/User");
 const ReadingHistory = require("../models/ReadingHistory");
+const { invalidateForYouCache } = require("./personalizationController");
 
-// GET /api/user/profile
+//  GET /api/user/profile 
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
       "-password -refreshTokens",
     );
     if (!user) return res.status(404).json({ message: "User not found" });
+    await invalidateForYouCache(req.user._id);
     res.status(200).json({ success: true, user });
   } catch (error) {
     res
@@ -16,8 +18,8 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// POST /api/user/onboarding
-// Called once after register - saves interests, countries, topics
+//  POST /api/user/onboarding 
+// Called once after register — saves interests, countries, topics
 exports.completeOnboarding = async (req, res) => {
   try {
     const {
@@ -37,6 +39,8 @@ exports.completeOnboarding = async (req, res) => {
       { new: true },
     ).select("-password -refreshTokens");
 
+    // Invalidate For You cache so next visit builds a fresh feed
+    await invalidateForYouCache(req.user._id);
     res
       .status(200)
       .json({ success: true, message: "Onboarding complete", user });
@@ -47,7 +51,7 @@ exports.completeOnboarding = async (req, res) => {
   }
 };
 
-// POST /api/user/follow-topic
+//  POST /api/user/follow-topic 
 exports.followTopic = async (req, res) => {
   try {
     const { topic } = req.body;
@@ -63,6 +67,7 @@ exports.followTopic = async (req, res) => {
       { new: true },
     ).select("followedTopics");
 
+    await invalidateForYouCache(req.user._id);
     res.status(200).json({
       success: true,
       message: `Now following "${normalized}"`,
@@ -75,7 +80,7 @@ exports.followTopic = async (req, res) => {
   }
 };
 
-// POST /api/user/unfollow-topic
+//  POST /api/user/unfollow-topic 
 exports.unfollowTopic = async (req, res) => {
   try {
     const { topic } = req.body;
@@ -91,6 +96,7 @@ exports.unfollowTopic = async (req, res) => {
       { new: true },
     ).select("followedTopics");
 
+    await invalidateForYouCache(req.user._id);
     res.status(200).json({
       success: true,
       message: `Unfollowed "${normalized}"`,
@@ -103,7 +109,7 @@ exports.unfollowTopic = async (req, res) => {
   }
 };
 
-// GET /api/user/topics
+//  GET /api/user/topics 
 exports.getTopics = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
@@ -117,8 +123,21 @@ exports.getTopics = async (req, res) => {
   }
 };
 
-// PUT /api/user/interests
-// Update interests/countries after onboarding
+//  POST /api/user/clear-feed-cache 
+// Manually clear For You cache — useful after preference updates
+exports.clearFeedCache = async (req, res) => {
+  try {
+    await invalidateForYouCache(req.user._id);
+    res.status(200).json({ success: true, message: "Feed cache cleared" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to clear cache", error: error.message });
+  }
+};
+
+//  PUT /api/user/interests 
+// Update interests/countries after onboarding (from settings page later)
 exports.updateInterests = async (req, res) => {
   try {
     const { interests = [], followedCountries = [] } = req.body;
@@ -132,6 +151,7 @@ exports.updateInterests = async (req, res) => {
       { new: true },
     ).select("interests followedCountries followedTopics");
 
+    await invalidateForYouCache(req.user._id);
     res.status(200).json({ success: true, user });
   } catch (error) {
     res

@@ -42,7 +42,7 @@ export class ForYouComponent implements OnInit {
   private historyService = inject(HistoryService);
   private savedNewsService = inject(SavedNewsService);
   private toastService = inject(ToastService);
-  private router = inject(Router);
+  router = inject(Router);
 
   ngOnInit(): void {
     const init = () => {
@@ -84,12 +84,15 @@ export class ForYouComponent implements OnInit {
         }),
         finalize(() => (this.isLoading = false)),
       )
-      .subscribe((res) => {
-        if (res.success) {
-          this.data = res.data.articles;
-          this.totalResults = res.data.totalResults;
-          this.sources = res.data.sources;
-          this.calculateTotalPages();
+      .subscribe((res: any) => {
+        if (!res) return;
+
+        if (res.success && res.data) {
+          this.data = res.data.articles || [];
+          this.totalResults = res.data.totalResults || 0;
+          this.sources = res.data.sources || null;
+        } else {
+          this.error = 'Could not load your feed. Please try again.';
         }
       });
   }

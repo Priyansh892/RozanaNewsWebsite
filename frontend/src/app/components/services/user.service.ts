@@ -84,6 +84,14 @@ export class UserService {
     );
   }
 
+  clearFeedCache(): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}/clear-feed-cache`,
+      {},
+      { withCredentials: true },
+    );
+  }
+
   clearState(): void {
     this.followedTopicsSubject.next([]);
   }
