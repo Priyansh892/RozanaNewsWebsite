@@ -1,51 +1,74 @@
 <div class="login-container">
-  <div class="login-box">
-    <div class="login-image">
-      <img [src]="newsLoginImage" alt="News Login" />
+  <div class="login-card">
+
+    <div class="login-header">
+      <p class="eyebrow">RozanaNews</p>
+      <h2>Welcome Back. <span class="accent">The News Awaits.</span></h2>
+      <p class="subtitle">Sign in to continue reading, saving, and staying informed.</p>
     </div>
 
-    <div class="login-form">
-      <h2>Welcome Back. The News Awaits.</h2>
+    <div class="login-body">
+
+      <!-- Google OAuth -->
+      <button type="button" class="btn-google" (click)="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#EA4335"
+            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z" />
+          <path fill="#4285F4"
+            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+          <path fill="#FBBC05"
+            d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+          <path fill="#34A853"
+            d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-3.59-13.46-8.79l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+        </svg>
+        Continue with Google
+      </button>
+
+      <div class="divider">
+        <span>or sign in with email</span>
+      </div>
 
       <form (ngSubmit)="login(form)" #form="ngForm" novalidate>
 
+
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" [(ngModel)]="username" name="username" required #usernameField="ngModel"
-            [ngClass]="{ 'input-error': usernameField.invalid && usernameField.touched }" />
-          <span class="field-error" *ngIf="usernameField.invalid && usernameField.touched">
+          <input type="text" id="username" class="form-control" placeholder="Enter your username"
+            [(ngModel)]="username" name="username" #usernameField="ngModel" required
+            [ngClass]="{ 'is-invalid': usernameField.invalid && (usernameField.touched || submitted) }" />
+          <div *ngIf="usernameField.invalid && (usernameField.touched || submitted)" class="invalid-feedback">
             Username is required.
-          </span>
+          </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" [(ngModel)]="password" name="password" required #passwordField="ngModel"
-            [ngClass]="{ 'input-error': passwordField.invalid && passwordField.touched }" />
-          <span class="field-error" *ngIf="passwordField.invalid && passwordField.touched">
-            Password is required.
-          </span>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password"
+            [(ngModel)]="password" name="password" #passwordField="ngModel" required minlength="6"
+            [ngClass]="{ 'is-invalid': passwordField.invalid && (passwordField.touched || submitted) }" />
+          <div *ngIf="passwordField.invalid && (passwordField.touched || submitted)" class="invalid-feedback">
+            <span *ngIf="passwordField.errors?.['required']">Password is required.</span>
+            <span *ngIf="passwordField.errors?.['minlength']">Password must be at least 6 characters.</span>
+          </div>
         </div>
 
-        <button type="submit" [disabled]="form.invalid || isLoading">
-          <span *ngIf="!isLoading">Login</span>
-          <span *ngIf="isLoading">Logging in...</span>
+        <button type="submit" class="btn-primary" [disabled]="isLoading || form.invalid">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading">Signing in...</span>
         </button>
 
       </form>
 
-      <!-- Single unified alert - removed the duplicate error display that was
-           showing errorMessage twice (once above and once inside the alert div) -->
       <div *ngIf="success || errorMessage" [ngClass]="alertClass" role="alert">
         <span *ngIf="success">Login successful! Redirecting...</span>
         <span *ngIf="errorMessage && !success">{{ errorMessage }}</span>
       </div>
 
       <div class="sign-in-link">
-        <p>Forgot your password? <a (click)="forgotPassword()">Reset your password</a></p>
+        <p>Don't have an account? <a (click)="navigateToRegister()">Register here</a></p>
       </div>
       <div class="sign-in-link">
-        <p>Don't have an account? <a (click)="navigateToRegister()">Register</a></p>
+        <p>Forgot your password? <a (click)="forgotPassword()">Reset your password</a></p>
       </div>
 
     </div>

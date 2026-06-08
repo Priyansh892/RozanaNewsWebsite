@@ -14,6 +14,7 @@ import { ReadingHistoryComponent } from './components/reading-history/reading-hi
 import { AnalyticsComponent } from './components/analytics/analytics.component';
 import { ForYouComponent } from './components/for-you/for-you.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
+import { GoogleCallbackComponent } from './components/google-callback.component';
 
 const authGuard = () => {
   const auth = inject(AuthService);
@@ -82,6 +83,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'auth/google/success', component: GoogleCallbackComponent },
 
   { path: '**', redirectTo: 'login' },
 ];

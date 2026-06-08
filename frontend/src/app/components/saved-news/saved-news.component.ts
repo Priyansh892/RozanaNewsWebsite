@@ -82,13 +82,13 @@ export class SavedNewsComponent implements OnInit {
     this.loadSaved();
   }
 
-  // ── Step 1: show confirmation ──────────────────────
+  //  Step 1: show confirmation 
   confirmUnsave(articleId: string): void {
     this.pendingRemoveId = articleId;
     this.showRemoveConfirm = true;
   }
 
-  // ── Step 2: confirmed → delete ─────────────────────
+  //  Step 2: confirmed → delete 
   onRemoveConfirmed(): void {
     this.showRemoveConfirm = false;
     if (!this.pendingRemoveId) return;

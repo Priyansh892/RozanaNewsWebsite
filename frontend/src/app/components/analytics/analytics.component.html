@@ -1,6 +1,6 @@
 <div class="analytics-page">
 
-  <!-- ── Header ─────────────────────────────────────── -->
+  <!--  Header  -->
   <div class="analytics-header">
     <div class="header-inner">
       <div>
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <!-- ── Error ──────────────────────────────────────── -->
+  <!--  Error  -->
   <div class="container" *ngIf="error">
     <div class="error-banner mt-4">
       {{ error }}
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <!-- ── Skeleton ───────────────────────────────────── -->
+  <!--  Skeleton  -->
   <div class="container" *ngIf="isLoading">
     <div class="stat-grid mt-4">
       <div class="sk-stat" *ngFor="let i of [1,2,3,4]"></div>
@@ -33,8 +33,8 @@
     </div>
   </div>
 
-  <!-- ── Dashboard ──────────────────────────────────── -->
-  <div class="container" *ngIf="!isLoading && data">
+  <!--  Dashboard  -->
+  <div class="container" *ngIf="!isLoading && data && data.totals.allTime > 0">
 
     <!-- Stat Cards -->
     <div class="stat-grid">
@@ -164,7 +164,7 @@
 
   </div>
 
-  <!-- ── Empty State ────────────────────────────────── -->
+  <!--  Empty State  -->
   <div class="empty-state" *ngIf="!isLoading && data && data.totals.allTime === 0">
     <div class="empty-icon">📖</div>
     <h3>No reading data yet</h3>

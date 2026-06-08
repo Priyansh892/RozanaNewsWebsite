@@ -120,6 +120,31 @@ export class AuthService {
     );
   }
 
+  initiateGoogleOAuth(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.location.href = `${this.apiUrl}/google`;
+    }
+  }
+
+  handleGoogleCallback(encodedUser: string | null): void {
+    if (!encodedUser) {
+      this.router.navigate(['/login'], {
+        queryParams: { error: 'google_auth_failed' },
+      });
+      return;
+    }
+
+    try {
+      const user = JSON.parse(atob(encodedUser));
+      this.onAuthSuccess(user);
+      this.router.navigate(['/onboarding'], { replaceUrl: true });
+    } catch {
+      this.router.navigate(['/login'], {
+        queryParams: { error: 'google_auth_failed' },
+      });
+    }
+  }
+
   // isLoggedIn now also validates that the actual auth state is consistent.
   // If userDetails cookie exists but loggedIn flag is false (e.g. after SSR hydration),
   // we restore state from the cookie.

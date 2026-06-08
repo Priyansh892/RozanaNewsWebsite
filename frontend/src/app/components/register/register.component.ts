@@ -16,7 +16,6 @@ export class RegisterComponent {
   email = '';
   password = '';
   confirmPassword = '';
-  newsLoginImage = 'assets/newsLogin.png';
   registrationSuccess = false;
   registrationError = '';
   submitted = false;
@@ -62,11 +61,15 @@ export class RegisterComponent {
       });
   }
 
-  redirectToLogin() {
+  loginWithGoogle(): void {
+    this.authService.initiateGoogleOAuth();
+  }
+
+  redirectToLogin(): void {
     this.router.navigate(['/login']);
   }
 
-  get alertClass() {
+  get alertClass(): string {
     if (this.registrationSuccess) return 'alert alert-success';
     if (this.registrationError) return 'alert alert-danger';
     return '';

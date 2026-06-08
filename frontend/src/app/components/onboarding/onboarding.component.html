@@ -4,8 +4,8 @@
         <!-- Header -->
         <div class="ob-header">
             <div class="ob-logo">🗞️ RozanaNews</div>
-            <h1 class="ob-title">Personalise Your Feed</h1>
-            <p class="ob-subtitle">Tell us what you care about - we'll do the rest</p>
+            <h1 class="ob-title">{{ pageTitle }}</h1>
+            <p class="ob-subtitle">Tell us what you care about — we'll do the rest</p>
 
             <!-- Progress bar -->
             <div class="progress-bar">
@@ -14,7 +14,7 @@
             <div class="step-label">Step {{ step }} of {{ totalSteps }}</div>
         </div>
 
-        <!-- Categories -->
+        <!--  Step 1: Categories  -->
         <div class="ob-body" *ngIf="step === 1">
             <h2 class="step-title">What topics interest you?</h2>
             <p class="step-subtitle">Pick at least 1 to continue</p>
@@ -33,7 +33,7 @@
             </p>
         </div>
 
-        <!-- Countries -->
+        <!--  Step 2: Countries  -->
         <div class="ob-body" *ngIf="step === 2">
             <h2 class="step-title">Which countries do you follow?</h2>
             <p class="step-subtitle">India is pre-selected. Add more!</p>
@@ -50,10 +50,10 @@
             <p class="selection-hint">{{ selectedCountries.length }} selected</p>
         </div>
 
-        <!-- Step 3: Keywords -->
+        <!--  Step 3: Keywords  -->
         <div class="ob-body" *ngIf="step === 3">
             <h2 class="step-title">Follow specific topics</h2>
-            <p class="step-subtitle">Type anything - IPL, ISRO, AI, Budget... This step is optional.</p>
+            <p class="step-subtitle">Type anything — IPL, ISRO, AI, Budget... This step is optional.</p>
 
             <!-- Input -->
             <div class="topic-input-row">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <!-- Footer navigation -->
+        <!--  Footer navigation  -->
         <div class="ob-footer">
             <button class="btn-skip" (click)="skip()" *ngIf="step === 1">
                 Skip for now
@@ -99,7 +99,7 @@
             </button>
 
             <button class="btn-finish" (click)="finish()" *ngIf="step === totalSteps" [disabled]="isSubmitting">
-                <span *ngIf="!isSubmitting">🚀 Start Reading</span>
+                <span *ngIf="!isSubmitting">{{ finishLabel }}</span>
                 <span *ngIf="isSubmitting">Saving...</span>
             </button>
         </div>

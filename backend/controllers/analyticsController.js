@@ -1,14 +1,14 @@
 const ReadingHistory = require("../models/ReadingHistory");
 const SavedNews = require("../models/SavedNews");
 
-// ─── GET /api/analytics/summary ───────────────────────────────────────────────
+//  GET /api/analytics/summary 
 // Returns all analytics data in one request to minimize round trips
 exports.getSummary = async (req, res) => {
   try {
     const userId = req.user._id;
     const now = new Date();
 
-    // ── Date boundaries ──────────────────────────────
+    //  Date boundaries 
     const startOfToday = new Date(
       now.getFullYear(),
       now.getMonth(),
@@ -19,7 +19,7 @@ exports.getSummary = async (req, res) => {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // ── 1. Weekly bar chart (last 7 days) ─────────────
+    //  1. Weekly bar chart (last 7 days)
     const weeklyRaw = await ReadingHistory.aggregate([
       {
         $match: {
@@ -51,7 +51,7 @@ exports.getSummary = async (req, res) => {
       weeklyData.push({ date: key, label, count: weeklyMap[key] || 0 });
     }
 
-    // ── 2. Category breakdown (last 30 days) ──────────
+    //  2. Category breakdown (last 30 days) 
     const categoryRaw = await ReadingHistory.aggregate([
       { $match: { userId, readAt: { $gte: last30Days } } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
@@ -64,7 +64,7 @@ exports.getSummary = async (req, res) => {
       count: c.count,
     }));
 
-    // ── 3. Reading streak ──────────────────────────────
+    //  3. Reading streak 
     const allDays = await ReadingHistory.aggregate([
       { $match: { userId } },
       {
@@ -112,16 +112,16 @@ exports.getSummary = async (req, res) => {
       prev = day;
     }
 
-    // ── 4. Total reads this month ──────────────────────
+    //  4. Total reads this month 
     const totalThisMonth = await ReadingHistory.countDocuments({
       userId,
       readAt: { $gte: startOfMonth },
     });
 
-    // ── 5. Total reads all time ────────────────────────
+    //  5. Total reads all time 
     const totalAllTime = await ReadingHistory.countDocuments({ userId });
 
-    // ── 6. Most saved category ─────────────────────────
+    //  6. Most saved category 
     const savedByCategory = await SavedNews.aggregate([
       { $match: { userId } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
@@ -129,7 +129,7 @@ exports.getSummary = async (req, res) => {
       { $limit: 5 },
     ]);
 
-    // ── 7. Today's reads ───────────────────────────────
+    //  7. Today's reads 
     const todayCount = await ReadingHistory.countDocuments({
       userId,
       readAt: { $gte: startOfToday },
