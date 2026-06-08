@@ -40,8 +40,12 @@ export class RegisterComponent {
         next: () => {
           this.registrationSuccess = true;
           this.isLoading = false;
+          // setTimeout(
+          //   () => this.router.navigate(['/onboarding'], { replaceUrl: true }),
+          //   1000,
+          // );
           setTimeout(
-            () => this.router.navigate(['/onboarding'], { replaceUrl: true }),
+            () => this.router.navigate(['/all-news'], { replaceUrl: true }),
             1000,
           );
         },

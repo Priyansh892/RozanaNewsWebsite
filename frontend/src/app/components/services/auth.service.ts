@@ -137,7 +137,8 @@ export class AuthService {
     try {
       const user = JSON.parse(atob(encodedUser));
       this.onAuthSuccess(user);
-      this.router.navigate(['/onboarding'], { replaceUrl: true });
+     // this.router.navigate(['/onboarding'], { replaceUrl: true });
+     this.router.navigate(['/all-news'], { replaceUrl: true });
     } catch {
       this.router.navigate(['/login'], {
         queryParams: { error: 'google_auth_failed' },
