@@ -9,7 +9,8 @@ const http = require("http");
 const app = express();
 connectDB();
 require("./config/redis");
-
+require("./config/passport");
+const passport = require("passport");
 // Security Headers (Helmet)
 // Sets 14 HTTP headers automatically to protect against common attacks:
 // XSS, clickjacking, MIME sniffing, etc.
@@ -22,7 +23,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:4200",
+    origin: process.env.CLIENT_URL || "http://localhost:4200",
     credentials: true,
   }),
 );

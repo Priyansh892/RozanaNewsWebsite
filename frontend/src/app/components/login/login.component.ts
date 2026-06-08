@@ -9,24 +9,21 @@ import { NgClass, NgIf } from '@angular/common';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  // Removed `providers: [AuthService]` - it was creating a component-scoped instance
-  // separate from the root instance, causing loggedIn state and BehaviorSubject to be
-  // out of sync with the rest of the app. AuthService is providedIn: 'root' and should
-  // be injected from the root injector everywhere.
   imports: [FormsModule, NgIf, NgClass],
 })
 export class LoginComponent {
   username = '';
   password = '';
-  newsLoginImage = 'assets/newsLogin.png';
   errorMessage = '';
   success = false;
+  submitted = false;
   isLoading = false;
 
   private authService = inject(AuthService);
   private router = inject(Router);
 
   login(form: NgForm) {
+    this.submitted = true;
     if (form.invalid) return;
 
     this.errorMessage = '';
@@ -36,7 +33,9 @@ export class LoginComponent {
       next: () => {
         this.success = true;
         this.isLoading = false;
-        this.router.navigate(['/all-news']);
+        setTimeout(() => {
+          this.router.navigate(['/all-news'], { replaceUrl: true });
+        }, 800);
       },
       error: (error) => {
         this.isLoading = false;
@@ -54,6 +53,10 @@ export class LoginComponent {
       },
     });
   }
+  loginWithGoogle(): void {
+    this.isLoading = true;
+    this.authService.initiateGoogleOAuth();
+  }
 
   forgotPassword() {
     this.router.navigate(['/forgot-password']);
@@ -63,7 +66,7 @@ export class LoginComponent {
     this.router.navigate(['/register']);
   }
 
-  get alertClass() {
+  get alertClass(): string {
     if (this.success) return 'alert alert-success';
     if (this.errorMessage) return 'alert alert-danger';
     return '';
