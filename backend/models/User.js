@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  googleId: { type: String, default: null, unique: true, sparse: true },
+  googleId: { type: String, unique: true, sparse: true },
   avatar: { type: String, default: null },
 
   refreshTokens: [
