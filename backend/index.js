@@ -21,9 +21,17 @@ app.use(helmet());
 // e.g: GET /api/news/all-news 200 42.3 ms
 app.use(morgan("dev"));
 
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:4200"].filter(
+  Boolean,
+);
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:4200",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, Postman, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );
