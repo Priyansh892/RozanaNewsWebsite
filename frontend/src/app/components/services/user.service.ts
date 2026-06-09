@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private baseUrl = 'http://localhost:5000/api/user';
+  private baseUrl = `${environment.apiUrl}/user`;
   private http = inject(HttpClient);
 
   // In-memory cache of followed topics so UI updates instantly

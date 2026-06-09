@@ -3,27 +3,27 @@ import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { SavedNewsService } from './saved-news.service';
-import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
+import { SavedNewsService } from './saved-news.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5000/api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   private http = inject(HttpClient);
   private router = inject(Router);
   private cookieService = inject(CookieService);
+  private platformId = inject(PLATFORM_ID);
   private savedNewsService = inject(SavedNewsService);
   private userService = inject(UserService);
-  private platformId = inject(PLATFORM_ID);
 
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-
   private loggedIn = false;
 
   constructor() {
@@ -35,7 +35,6 @@ export class AuthService {
           this.loggedIn = true;
           this.currentUserSubject.next(parsed);
         } catch {
-          // corrupt cookie - clear it
           this.cookieService.delete('userDetails', '/');
         }
       }
@@ -46,10 +45,6 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  // No client-side SHA-256 hashing - bcrypt over HTTPS is sufficient and correct.
-  // Sending a SHA-256 hash as the "password" doesn't improve security because the hash
-  // itself becomes the credential. If intercepted, it could be replayed. bcrypt on the
-  // server side (over HTTPS) is the correct and complete solution.
   register(username: string, password: string, email: string): Observable<any> {
     return this.http
       .post<any>(
@@ -57,11 +52,7 @@ export class AuthService {
         { username, password, email },
         { withCredentials: true },
       )
-      .pipe(
-        tap((response) => {
-          this.onAuthSuccess(response.user);
-        }),
-      );
+      .pipe(tap((response) => this.onAuthSuccess(response.user)));
   }
 
   login(username: string, password: string): Observable<any> {
@@ -71,11 +62,7 @@ export class AuthService {
         { username, password },
         { withCredentials: true },
       )
-      .pipe(
-        tap((response) => {
-          this.onAuthSuccess(response.user);
-        }),
-      );
+      .pipe(tap((response) => this.onAuthSuccess(response.user)));
   }
 
   logout(): void {
@@ -83,22 +70,14 @@ export class AuthService {
       .post<void>(`${this.apiUrl}/logout`, {}, { withCredentials: true })
       .subscribe({
         next: () => this.clearSession(),
-        error: (err) => {
-          console.error('Logout failed', err);
-          // Clear local session even if server call fails
-          this.clearSession();
-        },
+        error: () => this.clearSession(),
       });
   }
 
-  // Called by the interceptor when refresh fails - clears session without making server call
   forceLogout(): void {
     this.clearSession();
   }
 
-  // Fixed: consistent behavior in both browser and SSR environments.
-  // Previously the SSR branch sent plaintext passwords while the browser branch hashed them.
-  // Now both environments send plaintext - password security is handled entirely server-side by bcrypt.
   resetPassword(
     username: string,
     newPassword: string,
@@ -111,7 +90,6 @@ export class AuthService {
     );
   }
 
-  // Called by AuthInterceptor to rotate tokens when access token expires
   refreshTokens(): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/refresh-token`,
@@ -122,7 +100,7 @@ export class AuthService {
 
   initiateGoogleOAuth(): void {
     if (isPlatformBrowser(this.platformId)) {
-      window.location.href = `${this.apiUrl}/google`;
+      window.location.href = environment.googleAuthUrl;
     }
   }
 

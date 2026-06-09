@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HistoryService {
-  private baseUrl = 'http://localhost:5000/api/history';
+  private baseUrl = `${environment.apiUrl}/history`;
+  
   private http = inject(HttpClient);
 
   // Called silently when user clicks an article card

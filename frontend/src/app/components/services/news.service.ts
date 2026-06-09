@@ -1,13 +1,11 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class NewsService {
-  private baseUrl = 'http://localhost:5000/api/news';
-
+  private baseUrl = `${environment.apiUrl}/news`;
   private http = inject(HttpClient);
 
   getAllNews(page: number, max: number): Observable<any> {
@@ -18,8 +16,6 @@ export class NewsService {
   }
 
   getCountryNews(iso: string, page: number, max: number): Observable<any> {
-    // Removed redundant ternary - iso is always passed, and an empty string
-    // would produce a broken URL (/country/) anyway. Callers should validate iso.
     return this.http.get(
       `${this.baseUrl}/country/${iso}?page=${page}&pageSize=${max}`,
       { withCredentials: true },
