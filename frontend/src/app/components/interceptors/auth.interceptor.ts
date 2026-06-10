@@ -21,35 +21,57 @@ export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler,
-  ): Observable<HttpEvent<any>> {
-    // Clone every request to add withCredentials so HttpOnly cookies
-    // (accessToken, refreshToken) are sent cross-origin to Render
-    const reqWithCredentials = req.clone({ withCredentials: true });
+ intercept(
+  req: HttpRequest<any>,
+  next: HttpHandler,
+): Observable<HttpEvent<any>> {
+  // Skip during SSR — AuthService has no tokens on the server
+  if (!isPlatformBrowser(this.platformId)) {
+    return next.handle(req);
+  }
 
-    if (req.url.includes('/refresh-token')) {
-      return next.handle(reqWithCredentials);
-    }
+  // Refresh endpoint sends the HttpOnly cookie automatically via withCredentials
+  // Don't add Bearer token to it — there's no accessToken yet at that point
+  if (req.url.includes('/refresh-token')) {
+    return next.handle(req);
+  }
 
-    return next.handle(reqWithCredentials).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && isPlatformBrowser(this.platformId)) {
-          const errorMsg = error.error?.error || '';
+  // Attach accessToken from memory as Bearer token on every other request
+  const reqWithAuth = this.addAuthHeader(req);
 
-          if (errorMsg === 'Access token expired') {
-            return this.handle401WithRefresh(reqWithCredentials, next);
-          }
+  return next.handle(reqWithAuth).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && isPlatformBrowser(this.platformId)) {
+        const errorMsg = error.error?.error || '';
 
-          this.forceLogoutAndRedirect();
-          return throwError(() => error);
+        if (errorMsg === 'Access token expired') {
+          return this.handle401WithRefresh(reqWithAuth, next);
         }
 
+        this.forceLogoutAndRedirect();
         return throwError(() => error);
-      }),
-    );
+      }
+
+      return throwError(() => error);
+    }),
+  );
+}
+
+  private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
+  console.log('AuthService instance:', this.authService);
+  console.log('getAccessToken exists:', typeof this.authService.getAccessToken);
+  
+  // Guard against SSR empty proxy object
+  if (!this.authService || typeof this.authService.getAccessToken !== 'function') {
+    return req;
   }
+  
+  const token = this.authService.getAccessToken();
+  if (!token) return req;
+  return req.clone({
+    setHeaders: { Authorization: `Bearer ${token}` },
+  });
+}
 
   private handle401WithRefresh(
     req: HttpRequest<any>,
@@ -63,7 +85,8 @@ export class AuthInterceptor implements HttpInterceptor {
         switchMap(() => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(true);
-          return next.handle(req); // req already cloned with credentials
+          // Retry original request with new accessToken
+          return next.handle(this.addAuthHeader(req));
         }),
         catchError((refreshError) => {
           this.isRefreshing = false;
@@ -79,7 +102,7 @@ export class AuthInterceptor implements HttpInterceptor {
       take(1),
       switchMap((success) => {
         if (success) {
-          return next.handle(req); // req already cloned with credentials
+          return next.handle(this.addAuthHeader(req));
         }
         this.forceLogoutAndRedirect();
         return throwError(() => new Error('Token refresh failed'));
@@ -87,8 +110,6 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
-  // Single place that handles all unrecoverable auth failures
-  // Clears local session state + saved IDs cache + redirects to login
   private forceLogoutAndRedirect(): void {
     this.authService.forceLogout();
     this.router.navigate(['/login']);

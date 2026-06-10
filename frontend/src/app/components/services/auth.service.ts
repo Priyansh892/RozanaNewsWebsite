@@ -3,11 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { SavedNewsService } from './saved-news.service';
+import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { environment } from '../../../environments/environment';
-import { SavedNewsService } from './saved-news.service';
-import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,13 +18,16 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private cookieService = inject(CookieService);
-  private platformId = inject(PLATFORM_ID);
   private savedNewsService = inject(SavedNewsService);
   private userService = inject(UserService);
+  private platformId = inject(PLATFORM_ID);
 
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  private loggedIn = false;
+
+  // accessToken lives only in memory — never in localStorage/cookie
+  // Avoids XSS risks and third-party cookie blocking
+  private accessToken: string | null = null;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -32,8 +35,11 @@ export class AuthService {
       if (userDetails) {
         try {
           const parsed = JSON.parse(userDetails);
-          this.loggedIn = true;
           this.currentUserSubject.next(parsed);
+          // Silently get a new accessToken on page load using the refreshToken cookie
+          this.refreshTokens().subscribe({
+            error: () => this.clearSession(),
+          });
         } catch {
           this.cookieService.delete('userDetails', '/');
         }
@@ -45,14 +51,24 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // Used by AuthInterceptor to attach Bearer token to every request
+  getAccessToken(): string | null {
+    return this.accessToken;
+  }
+
   register(username: string, password: string, email: string): Observable<any> {
     return this.http
       .post<any>(
         `${this.apiUrl}/register`,
         { username, password, email },
-        { withCredentials: true },
+        // { withCredentials: true },
       )
-      .pipe(tap((response) => this.onAuthSuccess(response.user)));
+      .pipe(
+        tap((response) => {
+          this.accessToken = response.accessToken;
+          this.onAuthSuccess(response.user);
+        }),
+      );
   }
 
   login(username: string, password: string): Observable<any> {
@@ -60,9 +76,14 @@ export class AuthService {
       .post<any>(
         `${this.apiUrl}/login`,
         { username, password },
-        { withCredentials: true },
+        // { withCredentials: true },
       )
-      .pipe(tap((response) => this.onAuthSuccess(response.user)));
+      .pipe(
+        tap((response) => {
+          this.accessToken = response.accessToken;
+          this.onAuthSuccess(response.user);
+        }),
+      );
   }
 
   logout(): void {
@@ -83,40 +104,42 @@ export class AuthService {
     newPassword: string,
     confirmPassword: string,
   ): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/forgot-password`,
-      { username, newPassword, confirmPassword },
-      { withCredentials: true },
-    );
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, {
+      username,
+      newPassword,
+      confirmPassword,
+    });
   }
 
+  // refreshToken cookie is HttpOnly — browser sends it automatically on withCredentials: true
+  // Response contains new accessToken which we store in memory
   refreshTokens(): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/refresh-token`,
-      {},
-      { withCredentials: true },
-    );
+    return this.http
+      .post<any>(`${this.apiUrl}/refresh-token`, {}, { withCredentials: true })
+      .pipe(
+        tap((response) => {
+          this.accessToken = response.accessToken;
+        }),
+      );
   }
 
-  initiateGoogleOAuth(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      window.location.href = environment.googleAuthUrl;
-    }
-  }
-
-  handleGoogleCallback(encodedUser: string | null): void {
-    if (!encodedUser) {
+  // Called by GoogleCallbackComponent — accessToken comes in redirect query param
+  handleGoogleCallback(
+    encodedUser: string | null,
+    accessToken: string | null,
+  ): void {
+    if (!encodedUser || !accessToken) {
       this.router.navigate(['/login'], {
         queryParams: { error: 'google_auth_failed' },
       });
       return;
     }
-
     try {
       const user = JSON.parse(atob(encodedUser));
+      this.accessToken = accessToken;
       this.onAuthSuccess(user);
-     // this.router.navigate(['/onboarding'], { replaceUrl: true });
-     this.router.navigate(['/all-news'], { replaceUrl: true });
+    //  this.router.navigate(['/onboarding'], { replaceUrl: true });
+      this.router.navigate(['/all-news'], { replaceUrl: true });
     } catch {
       this.router.navigate(['/login'], {
         queryParams: { error: 'google_auth_failed' },
@@ -124,28 +147,15 @@ export class AuthService {
     }
   }
 
-  // isLoggedIn now also validates that the actual auth state is consistent.
-  // If userDetails cookie exists but loggedIn flag is false (e.g. after SSR hydration),
-  // we restore state from the cookie.
-  isLoggedIn(): boolean {
-    if (!isPlatformBrowser(this.platformId)) {
-      return false;
+   initiateGoogleOAuth(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.location.href = environment.googleAuthUrl;
     }
-    if (this.loggedIn) return true;
+  }
 
-    // Fallback: try to restore from cookie on page refresh
-    const userDetails = this.cookieService.get('userDetails');
-    if (userDetails) {
-      try {
-        const parsed = JSON.parse(userDetails);
-        this.loggedIn = true;
-        this.currentUserSubject.next(parsed);
-        return true;
-      } catch {
-        this.cookieService.delete('userDetails', '/');
-      }
-    }
-    return false;
+  isLoggedIn(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    return !!this.accessToken || !!this.cookieService.get('userDetails');
   }
 
   getUsername(): string {
@@ -158,17 +168,15 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       this.cookieService.set('userDetails', JSON.stringify(user), 7, '/');
     }
-    this.loggedIn = true;
     this.currentUserSubject.next(user);
   }
 
   private clearSession(): void {
+    this.accessToken = null;
     if (isPlatformBrowser(this.platformId)) {
       this.cookieService.delete('userDetails', '/');
     }
-    this.loggedIn = false;
     this.currentUserSubject.next(null);
-    // Clear saved IDs cache on logout so next user starts fresh
     this.savedNewsService.clearState();
     this.userService.clearState();
     this.router.navigate(['/login']);
