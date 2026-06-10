@@ -5,7 +5,9 @@ import { AuthService } from './services/auth.service';
   standalone: true,
   selector: 'app-google-callback',
   template: `
-    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:sans-serif;color:#888;">
+    <div
+      style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:sans-serif;color:#888;"
+    >
       Signing you in…
     </div>
   `,
@@ -16,6 +18,7 @@ export class GoogleCallbackComponent implements OnInit {
 
   ngOnInit(): void {
     const encodedUser = this.route.snapshot.queryParamMap.get('user');
-    this.authService.handleGoogleCallback(encodedUser);
+    const accessToken = this.route.snapshot.queryParamMap.get('accessToken');
+    this.authService.handleGoogleCallback(encodedUser, accessToken);
   }
 }

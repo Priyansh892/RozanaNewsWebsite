@@ -23,7 +23,9 @@ function generateRefreshToken(user, tokenId) {
   });
 }
 
-function cookieOptions() {
+// Only refreshToken goes in a cookie now.
+// accessToken is returned in the response body and stored in memory on the client.
+function refreshCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -37,7 +39,6 @@ async function persistRefreshToken(user, tokenId) {
   );
   user.refreshTokens = user.refreshTokens || [];
   user.refreshTokens.push({ tokenId, expiresAt });
-  // Prune expired tokens on every write to keep the array lean
   user.refreshTokens = user.refreshTokens.filter(
     (rt) => rt.expiresAt > new Date(),
   );
@@ -67,12 +68,11 @@ exports.register = async (req, res) => {
   try {
     const { username, password, email } = req.body;
     if (!username || !password || !email) {
-      return res
-        .status(400)
-        .json({
-          message: "All fields (username, password, and email) are required.",
-        });
+      return res.status(400).json({
+        message: "All fields (username, password, and email) are required.",
+      });
     }
+
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       if (existingUser.username === username) {
@@ -90,18 +90,18 @@ exports.register = async (req, res) => {
     await persistRefreshToken(newUser, tokenId);
     const refreshToken = generateRefreshToken(newUser, tokenId);
 
-    res.cookie("accessToken", accessToken, {
-      ...cookieOptions(),
-      maxAge: parseExpiryToMs(ACCESS_TOKEN_EXPIRES_IN),
-    });
+    // refreshToken → HttpOnly cookie (not accessible to JS)
     res.cookie("refreshToken", refreshToken, {
-      ...cookieOptions(),
+      ...refreshCookieOptions(),
       maxAge: parseExpiryToMs(REFRESH_TOKEN_EXPIRES_IN),
     });
 
-    res
-      .status(201)
-      .json({ message: "User registered", user: { username, email } });
+    // accessToken → response body (stored in memory by AuthService)
+    res.status(201).json({
+      message: "User registered",
+      accessToken,
+      user: { username, email },
+    });
   } catch (error) {
     res
       .status(500)
@@ -130,21 +130,16 @@ exports.login = async (req, res) => {
     await persistRefreshToken(user, tokenId);
     const refreshToken = generateRefreshToken(user, tokenId);
 
-    res.cookie("accessToken", accessToken, {
-      ...cookieOptions(),
-      maxAge: parseExpiryToMs(ACCESS_TOKEN_EXPIRES_IN),
-    });
     res.cookie("refreshToken", refreshToken, {
-      ...cookieOptions(),
+      ...refreshCookieOptions(),
       maxAge: parseExpiryToMs(REFRESH_TOKEN_EXPIRES_IN),
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Login successful",
-        user: { username: user.username, email: user.email },
-      });
+    res.status(200).json({
+      message: "Login successful",
+      accessToken,
+      user: { username: user.username, email: user.email },
+    });
   } catch (error) {
     res.status(500).json({ message: "Login failed", error: error.message });
   }
@@ -152,7 +147,7 @@ exports.login = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken || req.body.refreshToken;
+    const token = req.cookies.refreshToken;
     if (!token)
       return res.status(401).json({ message: "Refresh token missing" });
 
@@ -186,16 +181,16 @@ exports.refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user, newTokenId);
 
-    res.cookie("accessToken", newAccessToken, {
-      ...cookieOptions(),
-      maxAge: parseExpiryToMs(ACCESS_TOKEN_EXPIRES_IN),
-    });
     res.cookie("refreshToken", newRefreshToken, {
-      ...cookieOptions(),
+      ...refreshCookieOptions(),
       maxAge: parseExpiryToMs(REFRESH_TOKEN_EXPIRES_IN),
     });
 
-    res.status(200).json({ message: "Tokens refreshed" });
+    // Return new accessToken in body — client stores it in memory
+    res.status(200).json({
+      message: "Tokens refreshed",
+      accessToken: newAccessToken,
+    });
   } catch (error) {
     res
       .status(500)
@@ -205,7 +200,7 @@ exports.refreshToken = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const token = req.cookies.refreshToken || req.body.refreshToken;
+    const token = req.cookies.refreshToken;
     if (token) {
       try {
         const payload = jwt.verify(token, REFRESH_SECRET);
@@ -218,12 +213,11 @@ exports.logout = async (req, res) => {
           await user.save();
         }
       } catch (e) {
-        // Ignore invalid/expired token during logout - still clear cookies
+        // Ignore invalid/expired token during logout — still clear cookie
       }
     }
 
-    res.clearCookie("accessToken", cookieOptions());
-    res.clearCookie("refreshToken", cookieOptions());
+    res.clearCookie("refreshToken", refreshCookieOptions());
     res.status(200).json({ message: "Logged out" });
   } catch (error) {
     res.status(500).json({ message: "Logout failed", error: error.message });
@@ -239,11 +233,10 @@ exports.resetPassword = async (req, res) => {
     if (newPassword !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
+
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Check if new password is the same as the current one.
-    // Returns 409 so the frontend can show a specific message and prompt login.
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
     if (isSamePassword) {
       return res.status(409).json({
@@ -252,7 +245,6 @@ exports.resetPassword = async (req, res) => {
     }
 
     user.password = await bcrypt.hash(newPassword, 12);
-    // Revoke all refresh tokens on password reset for security
     user.refreshTokens = [];
     await user.save();
 
